@@ -1,11 +1,14 @@
 import { Construct } from 'constructs';
 import { App, Chart, ChartProps } from 'cdk8s';
+import { WebUi } from './constructs/web-ui';
 
 export class MyChart extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps = {}) {
     super(scope, id, props);
 
-    // define resources here
+    new WebUi(this, 'web-ui', {
+      imageTag: 'run-on-prem-77547f29-stable',
+    });
   }
 }
 
