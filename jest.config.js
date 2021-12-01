@@ -1,9 +1,8 @@
+/* eslint-disable */
 module.exports = {
-    "roots": [
-        "<rootDir>"
-    ],
-    testMatch: [ '**/*.test.ts'],
-    "transform": {
-        "^.+\\.tsx?$": "ts-jest"
-    },
-}
+  roots: ['<rootDir>'],
+  testMatch: ['**/*.test.ts'],
+  transform: {
+    '^.+\\.tsx?$': 'ts-jest',
+  },
+};
