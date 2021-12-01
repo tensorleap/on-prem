@@ -1,7 +1,7 @@
 {
   "name": "on-prem",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "compiled/main.js",
   "types": "main.ts",
   "license": "Apache-2.0",
   "private": true,

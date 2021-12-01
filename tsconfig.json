@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./compiled",
     "alwaysStrict": true,
     "charset": "utf8",
     "declaration": true,

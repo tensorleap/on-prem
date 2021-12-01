@@ -1,5 +1,4 @@
-*.d.ts
-*.js
+compiled/
 !jest.config.js
 node_modules
 dist/
