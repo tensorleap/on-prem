@@ -7,14 +7,15 @@ export interface WebUiProps {
 }
 
 export class WebUi extends Chart {
-  constructor(scope: Construct, id: string, props: WebUiProps) {
-    super(scope, id);
+  constructor(scope: Construct, props: WebUiProps) {
+    super(scope, 'tensorleap-web-ui', {
+      labels: {
+        app: 'web-ui',
+      },
+    });
 
     new KubeDeployment(this, 'deployment', {
       metadata: {
-        labels: {
-          app: 'web-ui',
-        },
         name: 'tensorleap-web-ui',
       },
       spec: {
@@ -57,9 +58,6 @@ export class WebUi extends Chart {
 
     const service = new KubeService(this, 'service', {
       metadata: {
-        labels: {
-          app: 'web-ui',
-        },
         name: 'tensorleap-web-ui',
       },
       spec: {
