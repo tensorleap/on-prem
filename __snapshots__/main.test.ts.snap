@@ -1,5 +1,340 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Elasticsearch 1`] = `
+"apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  labels:
+    app: elasticsearch-master
+  name: elasticsearch-master-pdb
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: elasticsearch-master
+    chart: elasticsearch
+    heritage: Helm
+    release: elasticsearch-c80e37ed
+  name: elasticsearch-master
+spec:
+  ports:
+    - name: http
+      port: 9200
+      protocol: TCP
+    - name: transport
+      port: 9300
+      protocol: TCP
+  selector:
+    app: elasticsearch-master
+    chart: elasticsearch
+    heritage: Helm
+    release: elasticsearch-c80e37ed
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: \\"true\\"
+  labels:
+    app: elasticsearch-master
+    chart: elasticsearch
+    heritage: Helm
+    release: elasticsearch-c80e37ed
+  name: elasticsearch-master-headless
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 9200
+    - name: transport
+      port: 9300
+  publishNotReadyAddresses: true
+  selector:
+    app: elasticsearch-master
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    esMajorVersion: \\"7\\"
+  labels:
+    app: elasticsearch-master
+    chart: elasticsearch
+    heritage: Helm
+    release: elasticsearch-c80e37ed
+  name: elasticsearch-master
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-master
+  serviceName: elasticsearch-master-headless
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-master
+        chart: elasticsearch
+        heritage: Helm
+        release: elasticsearch-c80e37ed
+      name: elasticsearch-master
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - elasticsearch-master
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - env:
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: cluster.initial_master_nodes
+              value: elasticsearch-master-0,
+            - name: discovery.seed_hosts
+              value: elasticsearch-master-headless
+            - name: cluster.name
+              value: elasticsearch
+            - name: network.host
+              value: 0.0.0.0
+            - name: ES_JAVA_OPTS
+              value: -Xmx1g -Xms1g
+            - name: node.data
+              value: \\"true\\"
+            - name: node.ingest
+              value: \\"true\\"
+            - name: node.master
+              value: \\"true\\"
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
+          imagePullPolicy: IfNotPresent
+          name: elasticsearch
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  #!/usr/bin/env bash -e
+                  # If the node is starting up wait for the cluster to be ready (request params: 'wait_for_status=green&timeout=1s' )
+                  # Once it has started only check that the node itself is responding
+                  START_FILE=/tmp/.es_start_file
+
+                  http () {
+                      local path=\\"\${1}\\"
+                      if [ -n \\"\${ELASTIC_USERNAME}\\" ] && [ -n \\"\${ELASTIC_PASSWORD}\\" ]; then
+                        BASIC_AUTH=\\"-u \${ELASTIC_USERNAME}:\${ELASTIC_PASSWORD}\\"
+                      else
+                        BASIC_AUTH=''
+                      fi
+                      curl -XGET -s -k --fail \${BASIC_AUTH} http://127.0.0.1:9200\${path}
+                  }
+
+                  if [ -f \\"\${START_FILE}\\" ]; then
+                      echo 'Elasticsearch is already running, lets check the node is healthy and there are master nodes available'
+                      http \\"/_cluster/health?timeout=0s\\"
+                  else
+                      echo 'Waiting for elasticsearch cluster to become ready (request params: \\"wait_for_status=green&timeout=1s\\" )'
+                      if http \\"/_cluster/health?wait_for_status=green&timeout=1s\\" ; then
+                          touch \${START_FILE}
+                          exit 0
+                      else
+                          echo 'Cluster is not yet ready (request params: \\"wait_for_status=green&timeout=1s\\" )'
+                          exit 1
+                      fi
+                  fi
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 3
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elasticsearch-master
+      initContainers:
+        - command:
+            - sysctl
+            - -w
+            - vm.max_map_count=262144
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
+          imagePullPolicy: IfNotPresent
+          name: configure-sysctl
+          resources: {}
+          securityContext:
+            privileged: true
+            runAsUser: 0
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      terminationGracePeriodSeconds: 120
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-master
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 30Gi
+"
+`;
+
+exports[`Kibana 1`] = `
+"apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: kibana
+    release: kibana-c8c926d5
+  name: kibana-config
+data:
+  kibana.yml: |
+    
+    server:
+      basePath: /kibana
+      rewriteBasePath: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kibana
+    heritage: Helm
+    release: kibana-c8c926d5
+  name: kibana
+spec:
+  ports:
+    - name: http
+      port: 5601
+      protocol: TCP
+      targetPort: 5601
+  selector:
+    app: kibana
+    release: kibana-c8c926d5
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kibana
+    release: kibana-c8c926d5
+  name: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+      release: kibana-c8c926d5
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        configchecksum: 8647f028d3de019f20ba90b0e38a9b49670d5cf48781c19b5c568007c36d10a
+      labels:
+        app: kibana
+        release: kibana-c8c926d5
+    spec:
+      containers:
+        - env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://elasticsearch-master.default:9200
+            - name: SERVER_HOST
+              value: 0.0.0.0
+          image: gcr.io/tensorleap/kibanimat:master-3266eae8-stable
+          imagePullPolicy: IfNotPresent
+          name: kibana
+          ports:
+            - containerPort: 5601
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  #!/usr/bin/env bash -e
+                  http () {
+                      local path=\\"\${1}\\"
+                      set -- -XGET -s --fail
+
+                      if [ -n \\"\${ELASTICSEARCH_USERNAME}\\" ] && [ -n \\"\${ELASTICSEARCH_PASSWORD}\\" ]; then
+                        set -- \\"$@\\" -u \\"\${ELASTICSEARCH_USERNAME}:\${ELASTICSEARCH_PASSWORD}\\"
+                      fi
+
+                      STATUS=$(curl --output /dev/null --write-out \\"%{http_code}\\" -k \\"$@\\" \\"http://localhost:5601\${path}\\")
+                      if [[ \\"\${STATUS}\\" -eq 200 ]]; then
+                        exit 0
+                      fi
+
+                      echo \\"Error: Got HTTP code \${STATUS} but expected a 200\\"
+                      exit 1
+                  }
+
+                  http \\"/kibana/app/kibana\\"
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 3
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 500Mi
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /usr/share/kibana/config/kibana.yml
+              name: kibanaconfig
+              subPath: kibana.yml
+      securityContext:
+        fsGroup: 1000
+      volumes:
+        - configMap:
+            name: kibana-config
+          name: kibanaconfig
+"
+`;
+
 exports[`Web UI 1`] = `
 "apiVersion: apps/v1
 kind: Deployment
