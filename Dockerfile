@@ -5,6 +5,7 @@ RUN apk add --update curl openssl
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh
 RUN helm repo add elastic https://helm.elastic.co
 RUN helm repo add bitnami https://charts.bitnami.com/bitnami
+RUN helm repo add minio https://charts.min.io/
 
 WORKDIR /app
 
