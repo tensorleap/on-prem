@@ -1,11 +1,21 @@
 import { Testing } from 'cdk8s';
 import { WebUi } from './constructs/web-ui';
+import { NodeServer } from './constructs/node-server';
 import { Elasticsearch } from './constructs/elasticsearch';
 import { Kibana } from './constructs/kibana';
 
 test('Web UI', () => {
   const app = Testing.app();
   new WebUi(app, {
+    imageTag: 'master-1234568-stable',
+  });
+  const results = app.synthYaml();
+  expect(results).toMatchSnapshot();
+});
+
+test('NodeServer', () => {
+  const app = Testing.app();
+  new NodeServer(app, {
     imageTag: 'master-1234568-stable',
   });
   const results = app.synthYaml();
