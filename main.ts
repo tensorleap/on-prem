@@ -5,7 +5,7 @@ import { Kibana } from './constructs/kibana';
 
 const app = new App();
 new WebUi(app, {
-  imageTag: 'run-on-prem-77547f29-stable',
+  imageTag: 'master-36b486b3-stable',
 });
 new Elasticsearch(app);
 new Kibana(app);
