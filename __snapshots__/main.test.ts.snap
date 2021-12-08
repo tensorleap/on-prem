@@ -335,6 +335,291 @@ spec:
 "
 `;
 
+exports[`NodeServer 1`] = `
+"apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: node-server
+  name: node-server
+spec:
+  selector:
+    matchLabels:
+      app: node-server
+  template:
+    metadata:
+      labels:
+        app: node-server
+        revision: master-1234568-stable
+    spec:
+      containers:
+        - env:
+            - name: NODE_ENV
+              value: production
+            - name: KIBANA_URL
+              value: http://kibana.default:5601
+            - name: MONGO_URI
+              value: mongodb://mongodb.default.svc/tensorleap?tls=false&ssl=false
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          image: gcr.io/tensorleap/node-server:master-1234568-stable
+          imagePullPolicy: Always
+          name: node-server
+          ports:
+            - containerPort: 4000
+              name: http
+      serviceAccountName: node-server-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: node-server
+  name: node-server
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    app: node-server
+  sessionAffinity: None
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: public
+  labels:
+    app: node-server
+  name: node-server
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: node-server
+                port:
+                  name: http
+            path: /api
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: node-server
+                port:
+                  name: http
+            path: /kibana
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: kibana
+                port:
+                  number: 5601
+            path: /kibana/bundles
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: kibana
+                port:
+                  number: 5601
+            path: /kibana/built_assets
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: node-server
+                port:
+                  name: http
+            path: /socket.io
+            pathType: ImplementationSpecific
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-9.3.1
+  name: mongodb
+  namespace: default
+secrets:
+  - name: mongodb
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-9.3.1
+  name: mongodb
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-9.3.1
+  name: mongodb
+  namespace: default
+spec:
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: mongodb
+  selector:
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+    app.kubernetes.io/name: mongodb
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-9.3.1
+  name: mongodb
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: mongodb
+      app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+      app.kubernetes.io/name: mongodb
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: mongodb
+        app.kubernetes.io/instance: node-server-mongodb-c84a1b14
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mongodb
+        helm.sh/chart: mongodb-9.3.1
+    spec:
+      containers:
+        - env:
+            - name: BITNAMI_DEBUG
+              value: \\"false\\"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: \\"yes\\"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: \\"0\\"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: \\"no\\"
+            - name: MONGODB_ENABLE_IPV6
+              value: \\"no\\"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: \\"no\\"
+          image: docker.io/bitnami/mongodb:4.4.1-debian-10-r39
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - db.adminCommand('ping')
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: mongodb
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - db.adminCommand('ping')
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits: {}
+            requests: {}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          volumeMounts:
+            - mountPath: /bitnami/mongodb
+              name: datadir
+      securityContext:
+        fsGroup: 1001
+        sysctls: []
+      serviceAccountName: mongodb
+      volumes:
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: mongodb
+---
+apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-access-token
+metadata:
+  name: node-server-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: node-server-sa-role
+rules:
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - list
+      - get
+      - create
+      - delete
+  - apiGroups:
+      - \\"\\"
+    resources:
+      - configmaps
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: node-server-sa-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: node-server-sa-role
+subjects:
+  - kind: ServiceAccount
+    name: node-server-sa
+    namespace: default
+"
+`;
+
 exports[`Web UI 1`] = `
 "apiVersion: apps/v1
 kind: Deployment
