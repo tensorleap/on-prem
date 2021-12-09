@@ -8,7 +8,7 @@ const app = new App();
 new Elasticsearch(app);
 new Kibana(app);
 new NodeServer(app, {
-  imageTag: 'master-8b98feef-stable',
+  imageTag: 'master-4e6349f0-stable',
 });
 new WebUi(app, {
   imageTag: 'master-36b486b3-stable',
