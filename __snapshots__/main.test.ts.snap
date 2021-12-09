@@ -374,6 +374,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: HOST_NAME
+              value: tensorleap.local
+            - name: INSECURE_COOKIE
+              value: \\"true\\"
           image: gcr.io/tensorleap/node-server:master-1234568-stable
           imagePullPolicy: Always
           name: node-server
