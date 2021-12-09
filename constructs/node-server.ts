@@ -49,6 +49,7 @@ export class NodeServer extends Chart {
         name: 'node-server',
       },
       spec: {
+        revisionHistoryLimit: 0,
         selector: {
           matchLabels: {
             app: 'node-server',
