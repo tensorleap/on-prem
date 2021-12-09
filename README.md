@@ -17,8 +17,6 @@ kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access
   --docker-username=_json_key \
   --docker-password="$(cat ./json-key-file.json)" \
   --docker-email=someone@tensorleap.ai
-
-kubectl --kubeconfig=<(microk8s config) patch serviceaccount default -p '{"imagePullSecrets": [{"name": "gcr-access-token"}]}'
 ```
 
 ## Deploying to local cluster
