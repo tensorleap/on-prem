@@ -37,9 +37,12 @@ KUBECONFIG=<(microk8s config):$HOME/.kube/config kubectl config view --raw > kub
 You should now have `microk8s` visible in `kctx`
 
 ## Connecting to the cluster
-```
-$ multipass list
-Name                    State             IPv4             Image
-microk8s-vm             Running           192.168.64.2     Ubuntu 18.04 LTS
-```
-navigate to the ip of the host vm in the browser
+1. Run `multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first'` to get the cluster ip.
+2. Edit `/etc/hosts` and add a line `<YOUR_CLUSTER_IP> tensorleap.local`
+3. Navigate to http://tensorleap.local/
+
+## Creating a user
+1. Run the signup requests using http://tensorleap.local/api/v2/swagger
+2. Login to mongo with `microk8s kubectl exec -it svc/mongodb -- mongo`
+3. Switch to the correct db `use tensorleap`
+4. Activate the user and set correct role `db.users.update({}, {$set: {'local.activated': true, role: 'user'}})`
