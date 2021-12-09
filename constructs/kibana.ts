@@ -1,5 +1,6 @@
 import { Construct } from 'constructs';
 import { Chart, Helm } from 'cdk8s';
+import { KubeServiceAccount } from '../imports/k8s';
 
 export class Kibana extends Chart {
   constructor(scope: Construct) {
@@ -9,9 +10,21 @@ export class Kibana extends Chart {
       },
     });
 
+    const serviceAccount = new KubeServiceAccount(this, 'kibana-sa', {
+      metadata: {
+        name: 'kibana-sa',
+      },
+      imagePullSecrets: [
+        {
+          name: 'gcr-access-token',
+        },
+      ],
+    });
+
     new Helm(this, 'kibana', {
       chart: 'elastic/kibana',
       values: {
+        serviceAccount: serviceAccount.name,
         fullnameOverride: 'kibana',
         healthCheckPath: '/kibana/app/kibana',
         image: 'gcr.io/tensorleap/kibanimat',

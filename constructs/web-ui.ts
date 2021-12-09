@@ -1,6 +1,11 @@
 import { Construct } from 'constructs';
 import { Chart } from 'cdk8s';
-import { KubeDeployment, KubeIngress, KubeService } from '../imports/k8s';
+import {
+  KubeDeployment,
+  KubeIngress,
+  KubeService,
+  KubeServiceAccount,
+} from '../imports/k8s';
 
 export interface WebUiProps {
   imageTag: string;
@@ -12,6 +17,17 @@ export class WebUi extends Chart {
       labels: {
         app: 'web-ui',
       },
+    });
+
+    const serviceAccount = new KubeServiceAccount(this, 'web-ui-sa', {
+      metadata: {
+        name: 'web-ui-sa',
+      },
+      imagePullSecrets: [
+        {
+          name: 'gcr-access-token',
+        },
+      ],
     });
 
     new KubeDeployment(this, 'deployment', {
@@ -32,6 +48,7 @@ export class WebUi extends Chart {
             },
           },
           spec: {
+            serviceAccountName: serviceAccount.name,
             containers: [
               {
                 name: 'web-ui',

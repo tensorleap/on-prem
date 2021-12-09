@@ -213,6 +213,15 @@ spec:
 
 exports[`Kibana 1`] = `
 "apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-access-token
+metadata:
+  labels:
+    app: kibana
+  name: kibana-sa
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
@@ -328,6 +337,7 @@ spec:
               subPath: kibana.yml
       securityContext:
         fsGroup: 1000
+      serviceAccount: kibana-sa
       volumes:
         - configMap:
             name: kibana-config
@@ -621,7 +631,16 @@ subjects:
 `;
 
 exports[`Web UI 1`] = `
-"apiVersion: apps/v1
+"apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-access-token
+metadata:
+  labels:
+    app: web-ui
+  name: web-ui-sa
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -647,6 +666,7 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+      serviceAccountName: web-ui-sa
 ---
 apiVersion: v1
 kind: Service
