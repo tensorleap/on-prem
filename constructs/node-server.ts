@@ -96,6 +96,14 @@ export class NodeServer extends Chart {
                       },
                     },
                   },
+                  {
+                    name: 'HOST_NAME',
+                    value: 'tensorleap.local',
+                  },
+                  {
+                    name: 'INSECURE_COOKIE',
+                    value: 'true',
+                  },
                 ],
               },
             ],
