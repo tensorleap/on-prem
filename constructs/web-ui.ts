@@ -35,6 +35,7 @@ export class WebUi extends Chart {
         name: 'tensorleap-web-ui',
       },
       spec: {
+        revisionHistoryLimit: 0,
         selector: {
           matchLabels: {
             app: 'web-ui',
