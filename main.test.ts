@@ -4,6 +4,7 @@ import { NodeServer } from './constructs/node-server';
 import { Elasticsearch } from './constructs/elasticsearch';
 import { Kibana } from './constructs/kibana';
 import { Minio } from './constructs/minio';
+import { KappRules } from './constructs/kapp-rules';
 
 test('Web UI', () => {
   const app = Testing.app();
@@ -40,6 +41,13 @@ test('Kibana', () => {
 test('Minio', () => {
   const app = Testing.app();
   new Minio(app);
+  const results = app.synthYaml();
+  expect(results).toMatchSnapshot();
+});
+
+test('Kapp Rules', () => {
+  const app = Testing.app();
+  new KappRules(app);
   const results = app.synthYaml();
   expect(results).toMatchSnapshot();
 });
