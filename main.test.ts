@@ -5,6 +5,7 @@ import { Elasticsearch } from './constructs/elasticsearch';
 import { Kibana } from './constructs/kibana';
 import { Minio } from './constructs/minio';
 import { KappRules } from './constructs/kapp-rules';
+import { RabbitMQ } from './constructs/rabbitmq';
 
 test('Web UI', () => {
   const app = Testing.app();
@@ -48,6 +49,13 @@ test('Minio', () => {
 test('Kapp Rules', () => {
   const app = Testing.app();
   new KappRules(app);
+  const results = app.synthYaml();
+  expect(results).toMatchSnapshot();
+});
+
+test('RabbitMQ', () => {
+  const app = Testing.app();
+  new RabbitMQ(app);
   const results = app.synthYaml();
   expect(results).toMatchSnapshot();
 });
