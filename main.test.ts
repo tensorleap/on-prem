@@ -3,6 +3,7 @@ import { WebUi } from './constructs/web-ui';
 import { NodeServer } from './constructs/node-server';
 import { Elasticsearch } from './constructs/elasticsearch';
 import { Kibana } from './constructs/kibana';
+import { Minio } from './constructs/minio';
 
 test('Web UI', () => {
   const app = Testing.app();
@@ -32,6 +33,13 @@ test('Elasticsearch', () => {
 test('Kibana', () => {
   const app = Testing.app();
   new Kibana(app);
+  const results = app.synthYaml();
+  expect(results).toMatchSnapshot();
+});
+
+test('Minio', () => {
+  const app = Testing.app();
+  new Minio(app);
   const results = app.synthYaml();
   expect(results).toMatchSnapshot();
 });

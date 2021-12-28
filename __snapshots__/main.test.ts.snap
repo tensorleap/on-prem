@@ -345,6 +345,460 @@ spec:
 "
 `;
 
+exports[`Minio 1`] = `
+"apiVersion: v1
+kind: Secret
+data:
+  rootPassword: Zm9vYmFyYmF6cXV4
+  rootUser: Zm9vYmFyYmF6
+metadata:
+  labels:
+    app: minio
+  name: minio-secret
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: minio
+  name: minio-sa
+  namespace: default
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: minio
+    chart: minio-3.3.1
+    heritage: Helm
+    release: minio-c8cb4064
+  name: minio-c8cb4064
+  namespace: default
+data:
+  add-user: |-
+    #!/bin/sh
+    set -e ; # Have script exit in the event of a failed command.
+    MC_CONFIG_DIR=\\"/etc/minio/mc/\\"
+    MC=\\"/usr/bin/mc --insecure --config-dir \${MC_CONFIG_DIR}\\"
+
+    # connectToMinio
+    # Use a check-sleep-check loop to wait for MinIO service to be available
+    connectToMinio() {
+      SCHEME=$1
+      ATTEMPTS=0 ; LIMIT=29 ; # Allow 30 attempts
+      set -e ; # fail if we can't read the keys.
+      ACCESS=$(cat /config/rootUser) ; SECRET=$(cat /config/rootPassword) ;
+      set +e ; # The connections to minio are allowed to fail.
+      echo \\"Connecting to MinIO server: $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT\\" ;
+      MC_COMMAND=\\"\${MC} config host add myminio $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT $ACCESS $SECRET\\" ;
+      $MC_COMMAND ;
+      STATUS=$? ;
+      until [ $STATUS = 0 ]
+      do
+        ATTEMPTS=\`expr $ATTEMPTS + 1\` ;
+        echo \\\\\\"Failed attempts: $ATTEMPTS\\\\\\" ;
+        if [ $ATTEMPTS -gt $LIMIT ]; then
+          exit 1 ;
+        fi ;
+        sleep 2 ; # 1 second intervals between attempts
+        $MC_COMMAND ;
+        STATUS=$? ;
+      done ;
+      set -e ; # reset \`e\` as active
+      return 0
+    }
+
+    # checkUserExists ($username)
+    # Check if the user exists, by using the exit code of \`mc admin user info\`
+    checkUserExists() {
+      USER=$1
+      CMD=$(\${MC} admin user info myminio $USER > /dev/null 2>&1)
+      return $?
+    }
+
+    # createUser ($username, $password, $policy)
+    createUser() {
+      USER=$1
+      PASS=$2
+      POLICY=$3
+
+      # Create the user if it does not exist
+      if ! checkUserExists $USER ; then
+        echo \\"Creating user '$USER'\\"
+        \${MC} admin user add myminio $USER $PASS
+      else
+        echo \\"User '$USER' already exists.\\"
+      fi
+
+
+      # set policy for user
+      if [ ! -z $POLICY -a $POLICY != \\" \\" ] ; then
+          echo \\"Adding policy '$POLICY' for '$USER'\\"
+          \${MC} admin policy set myminio $POLICY user=$USER
+      else
+          echo \\"User '$USER' has no policy attached.\\"
+      fi
+    }
+
+    # Try connecting to MinIO instance
+    scheme=http
+    connectToMinio $scheme
+
+
+    # Create the users
+    createUser console console123 consoleAdmin
+  initialize: |-
+    #!/bin/sh
+    set -e ; # Have script exit in the event of a failed command.
+    MC_CONFIG_DIR=\\"/etc/minio/mc/\\"
+    MC=\\"/usr/bin/mc --insecure --config-dir \${MC_CONFIG_DIR}\\"
+
+    # connectToMinio
+    # Use a check-sleep-check loop to wait for MinIO service to be available
+    connectToMinio() {
+      SCHEME=$1
+      ATTEMPTS=0 ; LIMIT=29 ; # Allow 30 attempts
+      set -e ; # fail if we can't read the keys.
+      ACCESS=$(cat /config/rootUser) ; SECRET=$(cat /config/rootPassword) ;
+      set +e ; # The connections to minio are allowed to fail.
+      echo \\"Connecting to MinIO server: $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT\\" ;
+      MC_COMMAND=\\"\${MC} config host add myminio $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT $ACCESS $SECRET\\" ;
+      $MC_COMMAND ;
+      STATUS=$? ;
+      until [ $STATUS = 0 ]
+      do
+        ATTEMPTS=\`expr $ATTEMPTS + 1\` ;
+        echo \\\\\\"Failed attempts: $ATTEMPTS\\\\\\" ;
+        if [ $ATTEMPTS -gt $LIMIT ]; then
+          exit 1 ;
+        fi ;
+        sleep 2 ; # 1 second intervals between attempts
+        $MC_COMMAND ;
+        STATUS=$? ;
+      done ;
+      set -e ; # reset \`e\` as active
+      return 0
+    }
+
+    # checkBucketExists ($bucket)
+    # Check if the bucket exists, by using the exit code of \`mc ls\`
+    checkBucketExists() {
+      BUCKET=$1
+      CMD=$(\${MC} ls myminio/$BUCKET > /dev/null 2>&1)
+      return $?
+    }
+
+    # createBucket ($bucket, $policy, $purge)
+    # Ensure bucket exists, purging if asked to
+    createBucket() {
+      BUCKET=$1
+      POLICY=$2
+      PURGE=$3
+      VERSIONING=$4
+
+      # Purge the bucket, if set & exists
+      # Since PURGE is user input, check explicitly for \`true\`
+      if [ $PURGE = true ]; then
+        if checkBucketExists $BUCKET ; then
+          echo \\"Purging bucket '$BUCKET'.\\"
+          set +e ; # don't exit if this fails
+          \${MC} rm -r --force myminio/$BUCKET
+          set -e ; # reset \`e\` as active
+        else
+          echo \\"Bucket '$BUCKET' does not exist, skipping purge.\\"
+        fi
+      fi
+
+      # Create the bucket if it does not exist
+      if ! checkBucketExists $BUCKET ; then
+        echo \\"Creating bucket '$BUCKET'\\"
+        \${MC} mb myminio/$BUCKET
+      else
+        echo \\"Bucket '$BUCKET' already exists.\\"
+      fi
+
+
+      # set versioning for bucket
+      if [ ! -z $VERSIONING ] ; then
+        if [ $VERSIONING = true ] ; then
+            echo \\"Enabling versioning for '$BUCKET'\\"
+            \${MC} version enable myminio/$BUCKET
+        elif [ $VERSIONING = false ] ; then
+            echo \\"Suspending versioning for '$BUCKET'\\"
+            \${MC} version suspend myminio/$BUCKET
+        fi
+      else
+          echo \\"Bucket '$BUCKET' versioning unchanged.\\"
+      fi
+
+      # At this point, the bucket should exist, skip checking for existence
+      # Set policy on the bucket
+      echo \\"Setting policy of bucket '$BUCKET' to '$POLICY'.\\"
+      \${MC} policy set $POLICY myminio/$BUCKET
+    }
+
+    # Try connecting to MinIO instance
+    scheme=http
+    connectToMinio $scheme
+
+
+    # Create the buckets
+    createBucket session public  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: minio
+    chart: minio-3.3.1
+    heritage: Helm
+    release: minio-c8cb4064
+  name: minio-c8cb4064
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: minio
+    chart: minio-3.3.1
+    heritage: Helm
+    release: minio-c8cb4064
+  name: minio-c8cb4064-console
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 9001
+      protocol: TCP
+      targetPort: 9001
+  selector:
+    app: minio
+    release: minio-c8cb4064
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: minio
+    chart: minio-3.3.1
+    heritage: Helm
+    monitoring: \\"true\\"
+    release: minio-c8cb4064
+  name: minio-c8cb4064
+  namespace: default
+spec:
+  ports:
+    - name: http
+      nodePort: 32000
+      port: 9000
+      protocol: TCP
+  selector:
+    app: minio
+    release: minio-c8cb4064
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: minio
+    chart: minio-3.3.1
+    heritage: Helm
+    release: minio-c8cb4064
+  name: minio-c8cb4064
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+      release: minio-c8cb4064
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: 5777f81fb54b3af10405dee552682305edb393fb0f2bbc386cdb530751b7f6cf
+        checksum/secrets: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      labels:
+        app: minio
+        release: minio-c8cb4064
+      name: minio-c8cb4064
+    spec:
+      containers:
+        - command:
+            - /bin/sh
+            - -ce
+            - /usr/bin/docker-entrypoint.sh minio server /export -S /etc/minio/certs/ --address :9000 --console-address :9001
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  key: rootUser
+                  name: minio-secret
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: rootPassword
+                  name: minio-secret
+            - name: MINIO_PROMETHEUS_AUTH_TYPE
+              value: public
+          image: quay.io/minio/minio:RELEASE.2021-11-24T23-19-33Z
+          imagePullPolicy: IfNotPresent
+          name: minio
+          ports:
+            - containerPort: 9000
+              name: http
+            - containerPort: 9001
+              name: http-console
+          resources:
+            requests:
+              memory: 500Mi
+          volumeMounts:
+            - mountPath: /export
+              name: export
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: minio-sa
+      volumes:
+        - name: export
+          persistentVolumeClaim:
+            claimName: minio-c8cb4064
+        - name: minio-user
+          secret:
+            secretName: minio-secret
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+  labels:
+    app: minio-make-bucket-job
+    chart: minio-3.3.1
+    heritage: Helm
+    release: minio-c8cb4064
+  name: minio-c8cb4064-make-bucket-job
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: minio-job
+        release: minio-c8cb4064
+    spec:
+      containers:
+        - command:
+            - /bin/sh
+            - /config/initialize
+          env:
+            - name: MINIO_ENDPOINT
+              value: minio-c8cb4064
+            - name: MINIO_PORT
+              value: \\"9000\\"
+          image: quay.io/minio/mc:RELEASE.2021-11-16T20-37-36Z
+          imagePullPolicy: IfNotPresent
+          name: minio-mc
+          resources:
+            requests:
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /config
+              name: minio-configuration
+      restartPolicy: OnFailure
+      volumes:
+        - name: minio-configuration
+          projected:
+            sources:
+              - configMap:
+                  name: minio-c8cb4064
+              - secret:
+                  name: minio-secret
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+  labels:
+    app: minio-make-user-job
+    chart: minio-3.3.1
+    heritage: Helm
+    release: minio-c8cb4064
+  name: minio-c8cb4064-make-user-job
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: minio-job
+        release: minio-c8cb4064
+    spec:
+      containers:
+        - command:
+            - /bin/sh
+            - /config/add-user
+          env:
+            - name: MINIO_ENDPOINT
+              value: minio-c8cb4064
+            - name: MINIO_PORT
+              value: \\"9000\\"
+          image: quay.io/minio/mc:RELEASE.2021-11-16T20-37-36Z
+          imagePullPolicy: IfNotPresent
+          name: minio-mc
+          resources:
+            requests:
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /config
+              name: minio-configuration
+      restartPolicy: OnFailure
+      volumes:
+        - name: minio-configuration
+          projected:
+            sources:
+              - configMap:
+                  name: minio-c8cb4064
+              - secret:
+                  name: minio-secret
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: public
+  labels:
+    app: minio
+  name: minio
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: minio-c8cb4064
+                port:
+                  name: http
+            path: /session
+            pathType: ImplementationSpecific
+"
+`;
+
 exports[`NodeServer 1`] = `
 "apiVersion: apps/v1
 kind: Deployment
