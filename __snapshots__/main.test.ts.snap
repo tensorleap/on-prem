@@ -1141,7 +1141,7 @@ metadata:
   name: rabbitmq-c817e59a
   namespace: default
 data:
-  rabbitmq-erlang-cookie: c29tZSByYW5kb20gc2VjcmV0
+  rabbitmq-erlang-cookie: M2UzYWJhZTItNjMyNS0xMWVjLTkwZDYtMDI0MmFjMTIwMDAz
   rabbitmq-password: M2UzYWJhZTItNjMyNS0xMWVjLTkwZDYtMDI0MmFjMTIwMDAz
 type: Opaque
 ---
@@ -1304,7 +1304,7 @@ spec:
     metadata:
       annotations:
         checksum/config: 114a3eead1cd6ba07d83e8f52be19336811d40175e949d5d0972cd2a6cea1dd6
-        checksum/secret: db4ede3c960c2b2d3fcfff471cc1060f11dad2a5d25d434f898b76744675e2ac
+        checksum/secret: ee941c52ed6b0f6b9e7d414f646fbbe410a0f7c409e7726791ea3cadf3fc7918
       labels:
         app.kubernetes.io/instance: rabbitmq-c817e59a
         app.kubernetes.io/managed-by: Helm
