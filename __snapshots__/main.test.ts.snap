@@ -211,6 +211,27 @@ spec:
 "
 `;
 
+exports[`Kapp Rules 1`] = `
+"apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+metadata:
+  name: kapp-rules-c852dca8
+rebaseRules:
+  - path:
+      - metadata
+      - annotations
+      - control-plane.alpha.kubernetes.io/leader
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+    sources:
+      - new
+      - existing
+    type: copy
+"
+`;
+
 exports[`Kibana 1`] = `
 "apiVersion: v1
 kind: ServiceAccount
