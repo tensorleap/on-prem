@@ -43,6 +43,7 @@ export class Minio extends Chart {
           },
         ],
       },
+      helmFlags: ['--version=3.4.3'],
     });
 
     new KubeIngress(this, 'ingress', {
