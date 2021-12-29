@@ -20,10 +20,12 @@
   "dependencies": {
     "cdk8s": "^1.2.7",
     "cdk8s-plus-22": "^1.0.0-beta.54",
-    "constructs": "^3.3.161"
+    "constructs": "^3.3.161",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
+    "@types/js-yaml": "^4.0.5",
     "@types/node": "^16.11.11",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
