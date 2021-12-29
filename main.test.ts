@@ -1,6 +1,7 @@
 import { Testing } from 'cdk8s';
 import { WebUi } from './constructs/web-ui';
 import { NodeServer } from './constructs/node-server';
+import { Engine } from './constructs/engine';
 import { Elasticsearch } from './constructs/elasticsearch';
 import { Kibana } from './constructs/kibana';
 import { Minio } from './constructs/minio';
@@ -19,6 +20,15 @@ test('Web UI', () => {
 test('NodeServer', () => {
   const app = Testing.app();
   new NodeServer(app, {
+    imageTag: 'master-1234568-stable',
+  });
+  const results = app.synthYaml();
+  expect(results).toMatchSnapshot();
+});
+
+test('NodeServer', () => {
+  const app = Testing.app();
+  new Engine(app, {
     imageTag: 'master-1234568-stable',
   });
   const results = app.synthYaml();

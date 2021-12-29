@@ -1113,6 +1113,115 @@ subjects:
 "
 `;
 
+exports[`NodeServer 2`] = `
+"apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: engine
+  name: engine-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 250Gi
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  job: |
+    metadata:
+      labels:
+        engineJob: 'true'
+        suffix: svcs
+    spec:
+      template:
+        spec:
+          containers:
+            - image: gcr.io/tensorleap/engine:master-1234568-stable
+              name: engine
+              env:
+                - name: JOB_PAYLOAD
+                - name: PY_CONFIG
+                  value: /app/config/config.yaml
+                - name: ELASTIC_HOST
+                  value: http://elasticsearch-master.default:9200
+                - name: SESSION_BUCKET
+                  value: session
+                - name: RABBIT_HOST
+                  value: rabbitmq-headless.default
+                - name: RABBIT_USER
+                  value: user
+                - name: RABBIT_PASSWORD
+                  value: 3e3abae2-6325-11ec-90d6-0242ac120003
+                - name: FEEDBACK_TOPIC
+                  value: feedback
+                - name: SUBSCRIBER_TOPIC
+                  value: job-control-channel
+              volumeMounts:
+                - name: engine-pvc
+                  mountPath: /nfs/
+          restartPolicy: Never
+          volumes:
+            - name: engine-pvc
+              presistentVolumeClaim:
+                claimName: engine-pvc
+metadata:
+  labels:
+    app: engine
+  name: engine-job-template-pytop-svcs
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  job: |
+    metadata:
+      labels:
+        engineJob: 'true'
+        suffix: k80
+    spec:
+      template:
+        spec:
+          containers:
+            - image: gcr.io/tensorleap/engine:master-1234568-stable
+              name: engine
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
+              env:
+                - name: JOB_PAYLOAD
+                - name: PY_CONFIG
+                  value: /app/config/config.yaml
+                - name: ELASTIC_HOST
+                  value: http://elasticsearch-master.default:9200
+                - name: SESSION_BUCKET
+                  value: session
+                - name: RABBIT_HOST
+                  value: rabbitmq-headless.default
+                - name: RABBIT_USER
+                  value: user
+                - name: RABBIT_PASSWORD
+                  value: 3e3abae2-6325-11ec-90d6-0242ac120003
+                - name: FEEDBACK_TOPIC
+                  value: feedback
+                - name: SUBSCRIBER_TOPIC
+                  value: job-control-channel
+              volumeMounts:
+                - name: engine-pvc
+                  mountPath: /nfs/
+          restartPolicy: Never
+          volumes:
+            - name: engine-pvc
+              presistentVolumeClaim:
+                claimName: engine-pvc
+metadata:
+  labels:
+    app: engine
+  name: engine-job-template-pytop-k80
+"
+`;
+
 exports[`RabbitMQ 1`] = `
 "apiVersion: v1
 kind: ServiceAccount
