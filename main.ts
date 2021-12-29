@@ -15,12 +15,12 @@ new Kibana(app);
 new Minio(app);
 new RabbitMQ(app);
 new NodeServer(app, {
-  imageTag: 'master-4e6349f0-stable',
+  imageTag: 'master-695f8f96-stable',
 });
 new Engine(app, {
-  imageTag: 'master-36b486b3-stable',
+  imageTag: 'master-9df38ba7-stable',
 });
 new WebUi(app, {
-  imageTag: 'master-9df38ba7-stable',
+  imageTag: 'master-81fdf920-stable',
 });
 app.synth();
