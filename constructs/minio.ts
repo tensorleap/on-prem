@@ -3,6 +3,7 @@ import { Chart, Helm } from 'cdk8s';
 import { KubeIngress, KubeSecret } from '../imports/k8s';
 
 export class Minio extends Chart {
+  public minioAddress: string;
   constructor(scope: Construct) {
     super(scope, 'minio', {
       labels: {
@@ -74,5 +75,7 @@ export class Minio extends Chart {
         ],
       },
     });
+
+    this.minioAddress = minio.releaseName;
   }
 }
