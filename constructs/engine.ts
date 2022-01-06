@@ -9,6 +9,7 @@ import * as yaml from 'js-yaml';
 
 export interface EngineProps {
   imageTag: string;
+  minioAddress: string;
 }
 
 export class Engine extends Chart {
@@ -36,12 +37,14 @@ export class Engine extends Chart {
     new EngineConfigMap(this, 'cpu', {
       suffix: 'svcs',
       imageTag: props.imageTag,
+      minioAddress: props.minioAddress,
       pvcClaimName: pvc.name,
     });
 
     new EngineConfigMap(this, 'gpu', {
       suffix: 'k80',
       imageTag: props.imageTag,
+      minioAddress: props.minioAddress,
       pvcClaimName: pvc.name,
       gpu: true,
     });
@@ -51,6 +54,7 @@ export class Engine extends Chart {
 interface EngineConfigMapProps {
   suffix: string;
   imageTag: string;
+  minioAddress: string;
   pvcClaimName: string;
   gpu?: boolean;
 }
@@ -101,6 +105,29 @@ class EngineConfigMap {
                   },
                   { name: 'FEEDBACK_TOPIC', value: 'feedback' },
                   { name: 'SUBSCRIBER_TOPIC', value: 'job-control-channel' },
+                  { name: 'STORAGE_PROVIDER', value: 'minio' },
+                  {
+                    name: 'STORAGE_ENDPOINT',
+                    value: props.minioAddress,
+                  },
+                  {
+                    name: 'HMAC_ACCESS_KEY_ID',
+                    valueFrom: {
+                      secretKeyRef: {
+                        name: 'minio-secret',
+                        key: 'rootUser',
+                      },
+                    },
+                  },
+                  {
+                    name: 'HMAC_ACCESS_KEY_SECRET',
+                    valueFrom: {
+                      secretKeyRef: {
+                        name: 'minio-secret',
+                        key: 'rootPassword',
+                      },
+                    },
+                  },
                 ],
                 volumeMounts: [
                   {

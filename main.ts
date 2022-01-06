@@ -12,13 +12,15 @@ const app = new App();
 new KappRules(app);
 new Elasticsearch(app);
 new Kibana(app);
-new Minio(app);
+const minio = new Minio(app);
 new RabbitMQ(app);
 new NodeServer(app, {
   imageTag: 'master-695f8f96-stable',
+  minioAddress: minio.minioAddress,
 });
 new Engine(app, {
   imageTag: 'master-9df38ba7-stable',
+  minioAddress: minio.minioAddress,
 });
 new WebUi(app, {
   imageTag: 'master-81fdf920-stable',
