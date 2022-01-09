@@ -21,6 +21,7 @@ test('NodeServer', () => {
   const app = Testing.app();
   new NodeServer(app, {
     imageTag: 'master-1234568-stable',
+    minioAddress: 'dummy-minio',
   });
   const results = app.synthYaml();
   expect(results).toMatchSnapshot();
@@ -30,6 +31,7 @@ test('NodeServer', () => {
   const app = Testing.app();
   new Engine(app, {
     imageTag: 'master-1234568-stable',
+    minioAddress: 'dummy-minio',
   });
   const results = app.synthYaml();
   expect(results).toMatchSnapshot();

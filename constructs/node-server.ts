@@ -13,6 +13,7 @@ import {
 
 export interface NodeServerProps {
   imageTag: string;
+  minioAddress: string;
 }
 
 export class NodeServer extends Chart {
@@ -104,6 +105,28 @@ export class NodeServer extends Chart {
                   {
                     name: 'INSECURE_COOKIE',
                     value: 'true',
+                  },
+                  {
+                    name: 'STORAGE_ENDPOINT',
+                    value: props.minioAddress,
+                  },
+                  {
+                    name: 'HMAC_ACCESS_KEY_ID',
+                    valueFrom: {
+                      secretKeyRef: {
+                        name: 'minio-secret',
+                        key: 'rootUser',
+                      },
+                    },
+                  },
+                  {
+                    name: 'HMAC_ACCESS_KEY_SECRET',
+                    valueFrom: {
+                      secretKeyRef: {
+                        name: 'minio-secret',
+                        key: 'rootPassword',
+                      },
+                    },
                   },
                 ],
               },

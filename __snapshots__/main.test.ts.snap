@@ -857,6 +857,18 @@ spec:
               value: tensorleap.local
             - name: INSECURE_COOKIE
               value: \\"true\\"
+            - name: STORAGE_ENDPOINT
+              value: dummy-minio
+            - name: HMAC_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: rootUser
+                  name: minio-secret
+            - name: HMAC_ACCESS_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: rootPassword
+                  name: minio-secret
           image: gcr.io/tensorleap/node-server:master-1234568-stable
           imagePullPolicy: Always
           name: node-server
@@ -1159,6 +1171,20 @@ data:
                   value: feedback
                 - name: SUBSCRIBER_TOPIC
                   value: job-control-channel
+                - name: STORAGE_PROVIDER
+                  value: minio
+                - name: STORAGE_ENDPOINT
+                  value: dummy-minio
+                - name: HMAC_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootUser
+                - name: HMAC_ACCESS_KEY_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootPassword
               volumeMounts:
                 - name: engine-pvc
                   mountPath: /nfs/
@@ -1207,6 +1233,20 @@ data:
                   value: feedback
                 - name: SUBSCRIBER_TOPIC
                   value: job-control-channel
+                - name: STORAGE_PROVIDER
+                  value: minio
+                - name: STORAGE_ENDPOINT
+                  value: dummy-minio
+                - name: HMAC_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootUser
+                - name: HMAC_ACCESS_KEY_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootPassword
               volumeMounts:
                 - name: engine-pvc
                   mountPath: /nfs/
