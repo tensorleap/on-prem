@@ -15,14 +15,14 @@ new Kibana(app);
 const minio = new Minio(app);
 new RabbitMQ(app);
 new NodeServer(app, {
-  imageTag: 'master-695f8f96-stable',
+  imageTag: 'master-9da6dbe4-stable',
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
-  imageTag: 'master-9df38ba7-stable',
+  imageTag: 'master-98097229-stable',
   minioAddress: minio.minioAddress,
 });
 new WebUi(app, {
-  imageTag: 'master-81fdf920-stable',
+  imageTag: 'master-5fe47b5d-stable',
 });
 app.synth();
