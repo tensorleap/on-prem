@@ -41,6 +41,11 @@ export class NodeServer extends Chart {
             resources: ['configmaps'],
             verbs: ['get'],
           },
+          {
+            apiGroups: [''],
+            resources: ['secrets'],
+            verbs: ['create', 'delete'],
+          },
         ],
       }
     );
