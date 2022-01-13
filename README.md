@@ -11,9 +11,44 @@ microk8s enable ingress dns storage rbac
 ### On Ubuntu
 
 ```
+sudo apt-get update
+
+# zsh
+sudo apt-get install -y zsh git vim
+ch -s $(which zsh) # restart after
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+vim $HOME/.zshrc
+# plugins=(git microk8s zsh-syntax-highlighting)
+#
+# source <(kubectl completion zsh)
+# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#
+# export EDITOR=vim
+# export KUBE_EDITOR=vim
+#
+# alias k=kubectl
+# alias kns=kubens
+# alias kctx=kubectl
+#
+# autoload -U compinit && compinit
+
+# kubectx and kubens
+sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
+sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
+sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+mkdir -p ~/.oh-my-zsh/completions
+chmod -R 755 ~/.oh-my-zsh/completions
+ln -s /opt/kubectx/completion/_kubectx.zsh ~/.oh-my-zsh/completions/_kubectx.zsh
+ln -s /opt/kubectx/completion/_kubens.zsh ~/.oh-my-zsh/completions/_kubens.zsh
+
+# fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
 # kubectl
 # based on https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
-sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl
 sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
@@ -30,6 +65,8 @@ rm install.sh
 
 # microk8s
 sudo snap install microk8s --classic
+sudo usermod -a -G microk8s $USER
+sudo chown -f -R $USER ~/.kube
 microk8s enable ingress dns storage rbac gpu
 
 # Installing tensorleap release
