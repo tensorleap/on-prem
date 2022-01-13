@@ -8,6 +8,41 @@ microk8s install
 microk8s enable ingress dns storage rbac
 ```
 
+### On Ubuntu
+
+```
+# kubectl
+# based on https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl
+
+# chromium
+sudo apt-get install chromium-browser
+
+# kapp
+wget -O- https://carvel.dev/install.sh > install.sh
+sudo bash install.sh
+rm install.sh
+
+# microk8s
+sudo snap install microk8s --classic
+microk8s enable ingress dns storage rbac gpu
+
+# Installing tensorleap release
+wget https://github.com/tensorleap/on-prem/releases/download/$RELEASE_TAG/tensorleap.tar.gz
+mkdir tensorleap
+tar -xzvf tensorleap.tar.gz -C ./tensorleap/
+kapp deploy -a tl-blinkeye -f ./tensorleap
+```
+
+##### Troubleshooting
+
+1. The machine hostname must not include capital letters or numbers. if it does, change it in `/etc/hostname` and `/etc/hosts`
+
 #### Authenticating to gcr.io
 
 This example uses the ops account
