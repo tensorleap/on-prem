@@ -3,6 +3,7 @@ import { Chart } from 'cdk8s';
 import {
   KubeConfigMap,
   KubePersistentVolumeClaim,
+  KubeServiceAccount,
   Quantity,
 } from '../imports/k8s';
 import * as yaml from 'js-yaml';
@@ -18,6 +19,17 @@ export class Engine extends Chart {
       labels: {
         app: 'engine',
       },
+    });
+
+    const serviceAccount = new KubeServiceAccount(this, 'engine-sa', {
+      metadata: {
+        name: 'engine-sa',
+      },
+      imagePullSecrets: [
+        {
+          name: 'gcr-access-token',
+        },
+      ],
     });
 
     const pvc = new KubePersistentVolumeClaim(this, 'pvc', {
@@ -38,6 +50,7 @@ export class Engine extends Chart {
       suffix: 'svcs',
       imageTag: props.imageTag,
       minioAddress: props.minioAddress,
+      serviceAccountName: serviceAccount.name,
       pvcClaimName: pvc.name,
     });
 
@@ -45,6 +58,7 @@ export class Engine extends Chart {
       suffix: 'k80',
       imageTag: props.imageTag,
       minioAddress: props.minioAddress,
+      serviceAccountName: serviceAccount.name,
       pvcClaimName: pvc.name,
       gpu: true,
     });
@@ -55,6 +69,7 @@ interface EngineConfigMapProps {
   suffix: string;
   imageTag: string;
   minioAddress: string;
+  serviceAccountName: string;
   pvcClaimName: string;
   gpu?: boolean;
 }
@@ -71,6 +86,7 @@ class EngineConfigMap {
       spec: {
         template: {
           spec: {
+            serviceAccount: props.serviceAccountName,
             containers: [
               {
                 image: `gcr.io/tensorleap/engine:${props.imageTag}`,
