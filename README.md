@@ -72,6 +72,8 @@ sudo snap install microk8s --classic
 sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
 microk8s enable ingress dns storage rbac gpu
+microk8s enable host-access:ip=10.0.1.20
+# add a line `10.0.1.20<TAB>tensorleap.local` to `/etc/hosts`
 
 # Installing tensorleap release
 wget https://github.com/tensorleap/on-prem/releases/download/$RELEASE_TAG/tensorleap.tar.gz
