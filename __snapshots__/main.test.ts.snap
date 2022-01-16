@@ -857,6 +857,8 @@ spec:
               value: tensorleap.local
             - name: INSECURE_COOKIE
               value: \\"true\\"
+            - name: SUBSCRIBER_TOPIC
+              value: feedback
             - name: JOB_TOPIC
               value: pytop-k80
             - name: JOB_TOPIC_AUG
@@ -1204,6 +1206,8 @@ data:
                   value: minio
                 - name: STORAGE_ENDPOINT
                   value: dummy-minio
+                - name: STORAGE_PORT
+                  value: '9000'
                 - name: HMAC_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
@@ -1267,6 +1271,8 @@ data:
                   value: minio
                 - name: STORAGE_ENDPOINT
                   value: dummy-minio
+                - name: STORAGE_PORT
+                  value: '9000'
                 - name: HMAC_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:

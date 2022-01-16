@@ -112,6 +112,10 @@ export class NodeServer extends Chart {
                     value: 'true',
                   },
                   {
+                    name: 'SUBSCRIBER_TOPIC',
+                    value: 'feedback',
+                  },
+                  {
                     name: 'JOB_TOPIC',
                     value: 'pytop-k80',
                   },
