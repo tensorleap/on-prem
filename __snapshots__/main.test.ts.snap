@@ -1134,6 +1134,15 @@ subjects:
 
 exports[`NodeServer 2`] = `
 "apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-access-token
+metadata:
+  labels:
+    app: engine
+  name: engine-sa
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
@@ -1157,6 +1166,7 @@ data:
     spec:
       template:
         spec:
+          serviceAccount: engine-sa
           containers:
             - image: gcr.io/tensorleap/engine:master-1234568-stable
               name: engine
@@ -1216,6 +1226,7 @@ data:
     spec:
       template:
         spec:
+          serviceAccount: engine-sa
           containers:
             - image: gcr.io/tensorleap/engine:master-1234568-stable
               name: engine
