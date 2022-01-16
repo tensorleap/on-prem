@@ -112,6 +112,31 @@ export class NodeServer extends Chart {
                     value: 'true',
                   },
                   {
+                    name: 'JOB_TOPIC',
+                    value: 'pytop-k80',
+                  },
+                  {
+                    name: 'JOB_TOPIC_AUG',
+                    value: 'pytop-svcs',
+                  },
+                  {
+                    name: 'RABBIT_URI',
+                    value:
+                      'amqp://user:3e3abae2-6325-11ec-90d6-0242ac120003@rabbitmq-headless',
+                  },
+                  {
+                    name: 'BUCKET_NAME',
+                    value: 'session',
+                  },
+                  {
+                    name: 'STORAGE_USE_SSL',
+                    value: 'false',
+                  },
+                  {
+                    name: 'STORAGE_PORT',
+                    value: '9000',
+                  },
+                  {
                     name: 'STORAGE_ENDPOINT',
                     value: props.minioAddress,
                   },
