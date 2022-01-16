@@ -19,7 +19,7 @@ new NodeServer(app, {
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
-  imageTag: 'master-adcf07d8-stable',
+  imageTag: 'master-09bf8273-stable',
   minioAddress: minio.minioAddress,
 });
 new WebUi(app, {
