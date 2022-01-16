@@ -857,6 +857,18 @@ spec:
               value: tensorleap.local
             - name: INSECURE_COOKIE
               value: \\"true\\"
+            - name: JOB_TOPIC
+              value: pytop-k80
+            - name: JOB_TOPIC_AUG
+              value: pytop-svcs
+            - name: RABBIT_URI
+              value: amqp://user:3e3abae2-6325-11ec-90d6-0242ac120003@rabbitmq-headless
+            - name: BUCKET_NAME
+              value: session
+            - name: STORAGE_USE_SSL
+              value: \\"false\\"
+            - name: STORAGE_PORT
+              value: \\"9000\\"
             - name: STORAGE_ENDPOINT
               value: dummy-minio
             - name: HMAC_ACCESS_KEY_ID
@@ -1179,7 +1191,7 @@ data:
                 - name: SESSION_BUCKET
                   value: session
                 - name: RABBIT_HOST
-                  value: rabbitmq-headless.default
+                  value: rabbitmq-headless
                 - name: RABBIT_USER
                   value: user
                 - name: RABBIT_PASSWORD
@@ -1242,7 +1254,7 @@ data:
                 - name: SESSION_BUCKET
                   value: session
                 - name: RABBIT_HOST
-                  value: rabbitmq-headless.default
+                  value: rabbitmq-headless
                 - name: RABBIT_USER
                   value: user
                 - name: RABBIT_PASSWORD
@@ -1290,11 +1302,11 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a
+  name: rabbitmq
   namespace: default
 automountServiceAccountToken: true
 secrets:
-  - name: rabbitmq-c817e59a
+  - name: rabbitmq
 ---
 apiVersion: v1
 kind: Secret
@@ -1305,7 +1317,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a
+  name: rabbitmq
   namespace: default
 data:
   rabbitmq-erlang-cookie: M2UzYWJhZTItNjMyNS0xMWVjLTkwZDYtMDI0MmFjMTIwMDAz
@@ -1321,7 +1333,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a-config
+  name: rabbitmq-config
   namespace: default
 data:
   rabbitmq.conf: |-
@@ -1353,7 +1365,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a-endpoint-reader
+  name: rabbitmq-endpoint-reader
   namespace: default
 rules:
   - apiGroups:
@@ -1378,15 +1390,15 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a-endpoint-reader
+  name: rabbitmq-endpoint-reader
   namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: rabbitmq-c817e59a-endpoint-reader
+  name: rabbitmq-endpoint-reader
 subjects:
   - kind: ServiceAccount
-    name: rabbitmq-c817e59a
+    name: rabbitmq
 ---
 apiVersion: v1
 kind: Service
@@ -1397,7 +1409,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a-headless
+  name: rabbitmq-headless
   namespace: default
 spec:
   clusterIP: None
@@ -1427,7 +1439,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a
+  name: rabbitmq
   namespace: default
 spec:
   ports:
@@ -1457,7 +1469,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-8.24.3
-  name: rabbitmq-c817e59a
+  name: rabbitmq
   namespace: default
 spec:
   podManagementPolicy: OrderedReady
@@ -1466,12 +1478,12 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: rabbitmq-c817e59a
       app.kubernetes.io/name: rabbitmq
-  serviceName: rabbitmq-c817e59a-headless
+  serviceName: rabbitmq-headless
   template:
     metadata:
       annotations:
-        checksum/config: 114a3eead1cd6ba07d83e8f52be19336811d40175e949d5d0972cd2a6cea1dd6
-        checksum/secret: ee941c52ed6b0f6b9e7d414f646fbbe410a0f7c409e7726791ea3cadf3fc7918
+        checksum/config: 3076592b99ac5419d697bf8f2f00f9d9f7f9773ba3ef241d9bf13580cf6e6bac
+        checksum/secret: 2138d423fe57d0a4026a9d7976d7dd87be440d33baa2f05760dfee6d31c1e853
       labels:
         app.kubernetes.io/instance: rabbitmq-c817e59a
         app.kubernetes.io/managed-by: Helm
@@ -1507,7 +1519,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: K8S_SERVICE_NAME
-              value: rabbitmq-c817e59a-headless
+              value: rabbitmq-headless
             - name: K8S_ADDRESS_TYPE
               value: hostname
             - name: RABBITMQ_FORCE_BOOT
@@ -1530,7 +1542,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: rabbitmq-erlang-cookie
-                  name: rabbitmq-c817e59a
+                  name: rabbitmq
             - name: RABBITMQ_LOAD_DEFINITIONS
               value: \\"no\\"
             - name: RABBITMQ_SECURE_PASSWORD
@@ -1541,7 +1553,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: rabbitmq-password
-                  name: rabbitmq-c817e59a
+                  name: rabbitmq
             - name: RABBITMQ_PLUGINS
               value: rabbitmq_management, rabbitmq_peer_discovery_k8s, rabbitmq_auth_backend_ldap
           image: docker.io/bitnami/rabbitmq:3.9.9-debian-10-r0
@@ -1601,14 +1613,14 @@ spec:
       securityContext:
         fsGroup: 1001
         runAsUser: 1001
-      serviceAccountName: rabbitmq-c817e59a
+      serviceAccountName: rabbitmq
       terminationGracePeriodSeconds: 120
       volumes:
         - configMap:
             items:
               - key: rabbitmq.conf
                 path: rabbitmq.conf
-            name: rabbitmq-c817e59a-config
+            name: rabbitmq-config
           name: configuration
   updateStrategy:
     type: RollingUpdate
