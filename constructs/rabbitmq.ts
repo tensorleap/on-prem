@@ -12,6 +12,7 @@ export class RabbitMQ extends Chart {
     new Helm(this, 'rabbitmq', {
       chart: 'bitnami/rabbitmq',
       values: {
+        fullnameOverride: 'rabbitmq',
         auth: {
           user: 'user',
           password: '3e3abae2-6325-11ec-90d6-0242ac120003',

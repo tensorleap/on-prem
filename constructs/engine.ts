@@ -112,7 +112,7 @@ class EngineConfigMap {
                   },
                   {
                     name: 'RABBIT_HOST',
-                    value: 'rabbitmq-headless.default',
+                    value: 'rabbitmq-headless',
                   },
                   { name: 'RABBIT_USER', value: 'user' },
                   {
