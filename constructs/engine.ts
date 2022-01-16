@@ -127,6 +127,10 @@ class EngineConfigMap {
                     value: props.minioAddress,
                   },
                   {
+                    name: 'STORAGE_PORT',
+                    value: '9000',
+                  },
+                  {
                     name: 'HMAC_ACCESS_KEY_ID',
                     valueFrom: {
                       secretKeyRef: {
