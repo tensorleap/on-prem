@@ -33,6 +33,10 @@ vim $HOME/.zshrc
 # alias kctx=kubectl
 #
 # autoload -U compinit && compinit
+#
+# set_microk8s_config() {
+#   microk8s config > $HOME/.kube/config
+# }
 
 # kubectx and kubens
 sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
