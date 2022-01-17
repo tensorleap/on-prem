@@ -14,6 +14,19 @@ spec:
       app: elasticsearch-master
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: elasticsearch-master
+    chart: elasticsearch
+    heritage: Helm
+    release: elasticsearch-c80e37ed
+  name: elasticsearch-master-config
+data:
+  elasticsearch.yml: |
+    node.store.allow_mmap: false
+---
+apiVersion: v1
 kind: Service
 metadata:
   labels:
@@ -79,6 +92,8 @@ spec:
   serviceName: elasticsearch-master-headless
   template:
     metadata:
+      annotations:
+        configchecksum: a073c99a498bddac2022dc1a7bd501994fa31f7b4e4a6e700858b0e37f8d66a
       labels:
         app: elasticsearch-master
         chart: elasticsearch
@@ -88,14 +103,16 @@ spec:
     spec:
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - elasticsearch-master
-              topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - elasticsearch-master
+                topologyKey: kubernetes.io/hostname
+              weight: 1
       containers:
         - env:
             - name: node.name
@@ -111,7 +128,7 @@ spec:
             - name: network.host
               value: 0.0.0.0
             - name: ES_JAVA_OPTS
-              value: -Xmx1g -Xms1g
+              value: -Xmx128m -Xms128m -Dlog4j2.formatMsgNoLookups=true
             - name: node.data
               value: \\"true\\"
             - name: node.ingest
@@ -168,10 +185,10 @@ spec:
           resources:
             limits:
               cpu: 1000m
-              memory: 2Gi
+              memory: 512M
             requests:
-              cpu: 1000m
-              memory: 2Gi
+              cpu: 100m
+              memory: 512M
           securityContext:
             capabilities:
               drop:
@@ -181,22 +198,17 @@ spec:
           volumeMounts:
             - mountPath: /usr/share/elasticsearch/data
               name: elasticsearch-master
-      initContainers:
-        - command:
-            - sysctl
-            - -w
-            - vm.max_map_count=262144
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
-          imagePullPolicy: IfNotPresent
-          name: configure-sysctl
-          resources: {}
-          securityContext:
-            privileged: true
-            runAsUser: 0
+            - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              name: esconfig
+              subPath: elasticsearch.yml
       securityContext:
         fsGroup: 1000
         runAsUser: 1000
       terminationGracePeriodSeconds: 120
+      volumes:
+        - configMap:
+            name: elasticsearch-master-config
+          name: esconfig
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
