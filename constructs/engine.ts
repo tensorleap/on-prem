@@ -40,7 +40,7 @@ export class Engine extends Chart {
         accessModes: ['ReadWriteMany'],
         resources: {
           requests: {
-            storage: Quantity.fromString('250Gi'),
+            storage: Quantity.fromString('20Gi'),
           },
         },
       },

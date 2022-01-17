@@ -211,6 +211,158 @@ spec:
 "
 `;
 
+exports[`Engine 1`] = `
+"apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-access-token
+metadata:
+  labels:
+    app: engine
+  name: engine-sa
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: engine
+  name: engine-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  job: |
+    metadata:
+      labels:
+        engineJob: 'true'
+        suffix: svcs
+    spec:
+      template:
+        spec:
+          serviceAccount: engine-sa
+          containers:
+            - image: gcr.io/tensorleap/engine:master-1234568-stable
+              name: engine
+              env:
+                - name: JOB_PAYLOAD
+                - name: PY_CONFIG
+                  value: /app/config/config.yaml
+                - name: ELASTIC_HOST
+                  value: http://elasticsearch-master.default:9200
+                - name: SESSION_BUCKET
+                  value: session
+                - name: RABBIT_HOST
+                  value: rabbitmq-headless
+                - name: RABBIT_USER
+                  value: user
+                - name: RABBIT_PASSWORD
+                  value: 3e3abae2-6325-11ec-90d6-0242ac120003
+                - name: FEEDBACK_TOPIC
+                  value: feedback
+                - name: SUBSCRIBER_TOPIC
+                  value: job-control-channel
+                - name: STORAGE_PROVIDER
+                  value: minio
+                - name: STORAGE_ENDPOINT
+                  value: dummy-minio
+                - name: STORAGE_PORT
+                  value: '9000'
+                - name: HMAC_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootUser
+                - name: HMAC_ACCESS_KEY_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootPassword
+              volumeMounts:
+                - name: engine-pvc
+                  mountPath: /nfs/
+          restartPolicy: Never
+          volumes:
+            - name: engine-pvc
+              presistentVolumeClaim:
+                claimName: engine-pvc
+metadata:
+  labels:
+    app: engine
+  name: engine-job-template-pytop-svcs
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  job: |
+    metadata:
+      labels:
+        engineJob: 'true'
+        suffix: k80
+    spec:
+      template:
+        spec:
+          serviceAccount: engine-sa
+          containers:
+            - image: gcr.io/tensorleap/engine:master-1234568-stable
+              name: engine
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
+              env:
+                - name: JOB_PAYLOAD
+                - name: PY_CONFIG
+                  value: /app/config/config.yaml
+                - name: ELASTIC_HOST
+                  value: http://elasticsearch-master.default:9200
+                - name: SESSION_BUCKET
+                  value: session
+                - name: RABBIT_HOST
+                  value: rabbitmq-headless
+                - name: RABBIT_USER
+                  value: user
+                - name: RABBIT_PASSWORD
+                  value: 3e3abae2-6325-11ec-90d6-0242ac120003
+                - name: FEEDBACK_TOPIC
+                  value: feedback
+                - name: SUBSCRIBER_TOPIC
+                  value: job-control-channel
+                - name: STORAGE_PROVIDER
+                  value: minio
+                - name: STORAGE_ENDPOINT
+                  value: dummy-minio
+                - name: STORAGE_PORT
+                  value: '9000'
+                - name: HMAC_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootUser
+                - name: HMAC_ACCESS_KEY_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: minio-secret
+                      key: rootPassword
+              volumeMounts:
+                - name: engine-pvc
+                  mountPath: /nfs/
+          restartPolicy: Never
+          volumes:
+            - name: engine-pvc
+              presistentVolumeClaim:
+                claimName: engine-pvc
+metadata:
+  labels:
+    app: engine
+  name: engine-job-template-pytop-k80
+"
+`;
+
 exports[`Kapp Rules 1`] = `
 "apiVersion: kapp.k14s.io/v1alpha1
 kind: Config
@@ -1146,158 +1298,6 @@ subjects:
 "
 `;
 
-exports[`NodeServer 2`] = `
-"apiVersion: v1
-kind: ServiceAccount
-imagePullSecrets:
-  - name: gcr-access-token
-metadata:
-  labels:
-    app: engine
-  name: engine-sa
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  labels:
-    app: engine
-  name: engine-pvc
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 250Gi
----
-apiVersion: v1
-kind: ConfigMap
-data:
-  job: |
-    metadata:
-      labels:
-        engineJob: 'true'
-        suffix: svcs
-    spec:
-      template:
-        spec:
-          serviceAccount: engine-sa
-          containers:
-            - image: gcr.io/tensorleap/engine:master-1234568-stable
-              name: engine
-              env:
-                - name: JOB_PAYLOAD
-                - name: PY_CONFIG
-                  value: /app/config/config.yaml
-                - name: ELASTIC_HOST
-                  value: http://elasticsearch-master.default:9200
-                - name: SESSION_BUCKET
-                  value: session
-                - name: RABBIT_HOST
-                  value: rabbitmq-headless
-                - name: RABBIT_USER
-                  value: user
-                - name: RABBIT_PASSWORD
-                  value: 3e3abae2-6325-11ec-90d6-0242ac120003
-                - name: FEEDBACK_TOPIC
-                  value: feedback
-                - name: SUBSCRIBER_TOPIC
-                  value: job-control-channel
-                - name: STORAGE_PROVIDER
-                  value: minio
-                - name: STORAGE_ENDPOINT
-                  value: dummy-minio
-                - name: STORAGE_PORT
-                  value: '9000'
-                - name: HMAC_ACCESS_KEY_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: minio-secret
-                      key: rootUser
-                - name: HMAC_ACCESS_KEY_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      name: minio-secret
-                      key: rootPassword
-              volumeMounts:
-                - name: engine-pvc
-                  mountPath: /nfs/
-          restartPolicy: Never
-          volumes:
-            - name: engine-pvc
-              presistentVolumeClaim:
-                claimName: engine-pvc
-metadata:
-  labels:
-    app: engine
-  name: engine-job-template-pytop-svcs
----
-apiVersion: v1
-kind: ConfigMap
-data:
-  job: |
-    metadata:
-      labels:
-        engineJob: 'true'
-        suffix: k80
-    spec:
-      template:
-        spec:
-          serviceAccount: engine-sa
-          containers:
-            - image: gcr.io/tensorleap/engine:master-1234568-stable
-              name: engine
-              resources:
-                limits:
-                  nvidia.com/gpu: 1
-              env:
-                - name: JOB_PAYLOAD
-                - name: PY_CONFIG
-                  value: /app/config/config.yaml
-                - name: ELASTIC_HOST
-                  value: http://elasticsearch-master.default:9200
-                - name: SESSION_BUCKET
-                  value: session
-                - name: RABBIT_HOST
-                  value: rabbitmq-headless
-                - name: RABBIT_USER
-                  value: user
-                - name: RABBIT_PASSWORD
-                  value: 3e3abae2-6325-11ec-90d6-0242ac120003
-                - name: FEEDBACK_TOPIC
-                  value: feedback
-                - name: SUBSCRIBER_TOPIC
-                  value: job-control-channel
-                - name: STORAGE_PROVIDER
-                  value: minio
-                - name: STORAGE_ENDPOINT
-                  value: dummy-minio
-                - name: STORAGE_PORT
-                  value: '9000'
-                - name: HMAC_ACCESS_KEY_ID
-                  valueFrom:
-                    secretKeyRef:
-                      name: minio-secret
-                      key: rootUser
-                - name: HMAC_ACCESS_KEY_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      name: minio-secret
-                      key: rootPassword
-              volumeMounts:
-                - name: engine-pvc
-                  mountPath: /nfs/
-          restartPolicy: Never
-          volumes:
-            - name: engine-pvc
-              presistentVolumeClaim:
-                claimName: engine-pvc
-metadata:
-  labels:
-    app: engine
-  name: engine-job-template-pytop-k80
-"
-`;
-
 exports[`RabbitMQ 1`] = `
 "apiVersion: v1
 kind: ServiceAccount
@@ -1641,7 +1641,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 8Gi
+            storage: 500Mi
 "
 `;
 

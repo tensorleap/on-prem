@@ -27,7 +27,7 @@ test('NodeServer', () => {
   expect(results).toMatchSnapshot();
 });
 
-test('NodeServer', () => {
+test('Engine', () => {
   const app = Testing.app();
   new Engine(app, {
     imageTag: 'master-1234568-stable',

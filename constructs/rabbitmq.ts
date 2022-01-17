@@ -18,6 +18,9 @@ export class RabbitMQ extends Chart {
           password: '3e3abae2-6325-11ec-90d6-0242ac120003',
           erlangCookie: '3e3abae2-6325-11ec-90d6-0242ac120003',
         },
+        persistence: {
+          size: '500Mi',
+        },
       },
       helmFlags: [
         '--version=8.24.3',
