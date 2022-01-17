@@ -20,8 +20,15 @@ export class Elasticsearch extends Chart {
         esConfig: {
           'elasticsearch.yml': yaml.dump({
             'node.store.allow_mmap': false,
+            'discovery.type': 'single-node',
           }),
         },
+        extraEnvs: [
+          {
+            name: 'cluster.initial_master_nodes',
+            value: '',
+          },
+        ],
         antiAffinity: 'soft',
         esJavaOpts: '-Xmx128m -Xms128m -Dlog4j2.formatMsgNoLookups=true',
         resources: {
