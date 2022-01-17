@@ -25,6 +25,7 @@ metadata:
 data:
   elasticsearch.yml: |
     node.store.allow_mmap: false
+    discovery.type: single-node
 ---
 apiVersion: v1
 kind: Service
@@ -93,7 +94,7 @@ spec:
   template:
     metadata:
       annotations:
-        configchecksum: a073c99a498bddac2022dc1a7bd501994fa31f7b4e4a6e700858b0e37f8d66a
+        configchecksum: 253fb936be554bb09ce53886ecb3d5686efa81f129c08ecddf27827f5830a0e
       labels:
         app: elasticsearch-master
         chart: elasticsearch
@@ -135,6 +136,8 @@ spec:
               value: \\"true\\"
             - name: node.master
               value: \\"true\\"
+            - name: cluster.initial_master_nodes
+              value: \\"\\"
           image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
           imagePullPolicy: IfNotPresent
           name: elasticsearch
