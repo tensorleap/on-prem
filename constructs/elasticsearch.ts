@@ -1,5 +1,6 @@
 import { Construct } from 'constructs';
 import { Chart, Helm } from 'cdk8s';
+import * as yaml from 'js-yaml';
 
 export class Elasticsearch extends Chart {
   constructor(scope: Construct) {
@@ -13,6 +14,26 @@ export class Elasticsearch extends Chart {
       chart: 'elastic/elasticsearch',
       values: {
         replicas: 1,
+        sysctlInitContainer: {
+          enabled: false,
+        },
+        esConfig: {
+          'elasticsearch.yml': yaml.dump({
+            'node.store.allow_mmap': false,
+          }),
+        },
+        antiAffinity: 'soft',
+        esJavaOpts: '-Xmx128m -Xms128m -Dlog4j2.formatMsgNoLookups=true',
+        resources: {
+          requests: {
+            cpu: '100m',
+            memory: '512M',
+          },
+          limits: {
+            cpu: '1000m',
+            memory: '512M',
+          },
+        },
       },
       helmFlags: ['--version=7.6.1', '--skip-tests'],
     });
