@@ -87,8 +87,16 @@ export class NodeServer extends Chart {
                     value: 'production',
                   },
                   {
+                    name: 'AUTO_ACTIVATE_USER',
+                    value: 'true',
+                  },
+                  {
                     name: 'KIBANA_URL',
                     value: 'http://kibana.default:5601',
+                  },
+                  {
+                    name: 'DISABLE_INDEX_REPLICATION',
+                    value: 'true',
                   },
                   {
                     name: 'MONGO_URI',
