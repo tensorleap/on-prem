@@ -8,6 +8,8 @@ microk8s install
 microk8s enable ingress dns storage rbac
 ```
 
+Create a user using signup requests in http://tensorleap.local/api/v2/swagger
+
 ### On Ubuntu
 
 ```
@@ -126,10 +128,3 @@ You should now have `microk8s` visible in `kctx`
 1. Run `multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first'` to get the cluster ip.
 2. Edit `/etc/hosts` and add a line `<YOUR_CLUSTER_IP> tensorleap.local`
 3. Navigate to http://tensorleap.local/
-
-## Creating a user
-
-1. Run the signup requests using http://tensorleap.local/api/v2/swagger
-2. Login to mongo with `microk8s kubectl exec -it svc/mongodb -- mongo`
-3. Switch to the correct db `use tensorleap`
-4. Activate the user and set correct role `db.users.update({}, {$set: {'local.activated': true, role: 'user'}})`
