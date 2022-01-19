@@ -51,6 +51,7 @@ export class Minio extends Chart {
       metadata: {
         annotations: {
           'kubernetes.io/ingress.class': 'public',
+          'nginx.ingress.kubernetes.io/upstream-vhost': `${minio.releaseName}:9000`,
         },
         name: 'minio',
       },

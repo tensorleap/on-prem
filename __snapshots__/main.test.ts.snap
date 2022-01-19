@@ -1020,6 +1020,7 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: public
+    nginx.ingress.kubernetes.io/upstream-vhost: minio-c8cb4064:9000
   labels:
     app: minio
   name: minio
