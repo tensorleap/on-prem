@@ -228,13 +228,37 @@ spec:
 
 exports[`Engine 1`] = `
 "apiVersion: v1
-kind: ServiceAccount
-imagePullSecrets:
-  - name: gcr-access-token
+kind: PersistentVolumeClaim
 metadata:
   labels:
     app: engine
-  name: engine-sa
+  name: local-user-data
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: \\"\\"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: engine
+  name: local-user-data
+spec:
+  accessModes:
+    - ReadOnlyMany
+  capacity:
+    storage: 100Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: local-user-data
+    namespace: default
+  hostPath:
+    path: /tensorleap-data/
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -248,6 +272,15 @@ spec:
   resources:
     requests:
       storage: 20Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: gcr-access-token
+metadata:
+  labels:
+    app: engine
+  name: engine-sa
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -301,11 +334,16 @@ data:
               volumeMounts:
                 - name: engine-pvc
                   mountPath: /nfs/
+                - name: local-user-data-pvc
+                  mountPath: /tensorleap-data/
           restartPolicy: Never
           volumes:
             - name: engine-pvc
               presistentVolumeClaim:
                 claimName: engine-pvc
+            - name: local-user-data-pvc
+              presistentVolumeClaim:
+                claimName: local-user-data
 metadata:
   labels:
     app: engine
@@ -366,11 +404,16 @@ data:
               volumeMounts:
                 - name: engine-pvc
                   mountPath: /nfs/
+                - name: local-user-data-pvc
+                  mountPath: /tensorleap-data/
           restartPolicy: Never
           volumes:
             - name: engine-pvc
               presistentVolumeClaim:
                 claimName: engine-pvc
+            - name: local-user-data-pvc
+              presistentVolumeClaim:
+                claimName: local-user-data
 metadata:
   labels:
     app: engine

@@ -2,6 +2,7 @@ import { Construct } from 'constructs';
 import { Chart } from 'cdk8s';
 import {
   KubeConfigMap,
+  KubePersistentVolume,
   KubePersistentVolumeClaim,
   KubeServiceAccount,
   Quantity,
@@ -13,6 +14,8 @@ export interface EngineProps {
   minioAddress: string;
 }
 
+const LOCAL_USER_DATA_STORAGE_SITE = Quantity.fromString('100Gi');
+
 export class Engine extends Chart {
   constructor(scope: Construct, props: EngineProps) {
     super(scope, 'engine', {
@@ -21,15 +24,44 @@ export class Engine extends Chart {
       },
     });
 
-    const serviceAccount = new KubeServiceAccount(this, 'engine-sa', {
-      metadata: {
-        name: 'engine-sa',
-      },
-      imagePullSecrets: [
-        {
-          name: 'gcr-access-token',
+    const localDataPvc = new KubePersistentVolumeClaim(
+      this,
+      'local-user-data-pvc',
+      {
+        metadata: {
+          name: 'local-user-data',
         },
-      ],
+        spec: {
+          storageClassName: '',
+          accessModes: ['ReadOnlyMany'],
+          resources: {
+            requests: {
+              storage: LOCAL_USER_DATA_STORAGE_SITE,
+            },
+          },
+        },
+      }
+    );
+
+    new KubePersistentVolume(this, 'local-user-data-pv', {
+      metadata: {
+        name: 'local-user-data',
+      },
+      spec: {
+        capacity: {
+          storage: LOCAL_USER_DATA_STORAGE_SITE,
+        },
+        accessModes: ['ReadOnlyMany'],
+        hostPath: {
+          path: '/tensorleap-data/',
+        },
+        claimRef: {
+          apiVersion: 'v1',
+          kind: 'PersistentVolumeClaim',
+          name: localDataPvc.name,
+          namespace: 'default',
+        },
+      },
     });
 
     const pvc = new KubePersistentVolumeClaim(this, 'pvc', {
@@ -46,12 +78,24 @@ export class Engine extends Chart {
       },
     });
 
+    const serviceAccount = new KubeServiceAccount(this, 'engine-sa', {
+      metadata: {
+        name: 'engine-sa',
+      },
+      imagePullSecrets: [
+        {
+          name: 'gcr-access-token',
+        },
+      ],
+    });
+
     new EngineConfigMap(this, 'cpu', {
       suffix: 'svcs',
       imageTag: props.imageTag,
       minioAddress: props.minioAddress,
       serviceAccountName: serviceAccount.name,
       pvcClaimName: pvc.name,
+      localDataPvcClaimName: localDataPvc.name,
     });
 
     new EngineConfigMap(this, 'gpu', {
@@ -60,6 +104,7 @@ export class Engine extends Chart {
       minioAddress: props.minioAddress,
       serviceAccountName: serviceAccount.name,
       pvcClaimName: pvc.name,
+      localDataPvcClaimName: localDataPvc.name,
       gpu: true,
     });
   }
@@ -71,6 +116,7 @@ interface EngineConfigMapProps {
   minioAddress: string;
   serviceAccountName: string;
   pvcClaimName: string;
+  localDataPvcClaimName: string;
   gpu?: boolean;
 }
 
@@ -154,6 +200,10 @@ class EngineConfigMap {
                     name: 'engine-pvc',
                     mountPath: '/nfs/',
                   },
+                  {
+                    name: 'local-user-data-pvc',
+                    mountPath: '/tensorleap-data/',
+                  },
                 ],
               },
             ],
@@ -163,6 +213,12 @@ class EngineConfigMap {
                 name: 'engine-pvc',
                 presistentVolumeClaim: {
                   claimName: props.pvcClaimName,
+                },
+              },
+              {
+                name: 'local-user-data-pvc',
+                presistentVolumeClaim: {
+                  claimName: props.localDataPvcClaimName,
                 },
               },
             ],
