@@ -177,6 +177,10 @@ class EngineConfigMap {
                     value: '9000',
                   },
                   {
+                    name: 'CONTENT_BASE_URL',
+                    value: 'http://tensorleap.local/session/',
+                  },
+                  {
                     name: 'HMAC_ACCESS_KEY_ID',
                     valueFrom: {
                       secretKeyRef: {

@@ -321,6 +321,8 @@ data:
                   value: dummy-minio
                 - name: STORAGE_PORT
                   value: '9000'
+                - name: CONTENT_BASE_URL
+                  value: http://tensorleap.local/session/
                 - name: HMAC_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
@@ -391,6 +393,8 @@ data:
                   value: dummy-minio
                 - name: STORAGE_PORT
                   value: '9000'
+                - name: CONTENT_BASE_URL
+                  value: http://tensorleap.local/session/
                 - name: HMAC_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
