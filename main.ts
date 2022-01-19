@@ -19,10 +19,10 @@ new NodeServer(app, {
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
-  imageTag: 'master-453eeb77-stable',
+  imageTag: 'master-fad49dd1-stable',
   minioAddress: minio.minioAddress,
 });
 new WebUi(app, {
-  imageTag: 'master-1919cf5b-stable',
+  imageTag: 'master-4a586a25-stable',
 });
 app.synth();
