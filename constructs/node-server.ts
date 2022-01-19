@@ -170,6 +170,10 @@ export class NodeServer extends Chart {
                       },
                     },
                   },
+                  {
+                    name: 'SIGNED_URL_HOST_REPLACEMENT',
+                    value: 'tensorleap.local',
+                  },
                 ],
               },
             ],

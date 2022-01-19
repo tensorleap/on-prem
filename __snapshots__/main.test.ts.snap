@@ -1101,6 +1101,8 @@ spec:
                 secretKeyRef:
                   key: rootPassword
                   name: minio-secret
+            - name: SIGNED_URL_HOST_REPLACEMENT
+              value: tensorleap.local
           image: gcr.io/tensorleap/node-server:master-1234568-stable
           imagePullPolicy: Always
           name: node-server
