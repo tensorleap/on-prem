@@ -23,6 +23,6 @@ new Engine(app, {
   minioAddress: minio.minioAddress,
 });
 new WebUi(app, {
-  imageTag: 'master-4a586a25-stable',
+  imageTag: 'master-9a788732-stable',
 });
 app.synth();
