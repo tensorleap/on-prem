@@ -321,6 +321,8 @@ data:
                   value: dummy-minio
                 - name: STORAGE_PORT
                   value: '9000'
+                - name: CONTENT_BASE_URL
+                  value: http://tensorleap.local/session/
                 - name: HMAC_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
@@ -391,6 +393,8 @@ data:
                   value: dummy-minio
                 - name: STORAGE_PORT
                   value: '9000'
+                - name: CONTENT_BASE_URL
+                  value: http://tensorleap.local/session/
                 - name: HMAC_ACCESS_KEY_ID
                   valueFrom:
                     secretKeyRef:
@@ -1016,6 +1020,7 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: public
+    nginx.ingress.kubernetes.io/upstream-vhost: minio-c8cb4064:9000
   labels:
     app: minio
   name: minio
@@ -1097,6 +1102,8 @@ spec:
                 secretKeyRef:
                   key: rootPassword
                   name: minio-secret
+            - name: SIGNED_URL_HOST_REPLACEMENT
+              value: tensorleap.local
           image: gcr.io/tensorleap/node-server:master-1234568-stable
           imagePullPolicy: Always
           name: node-server

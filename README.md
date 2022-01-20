@@ -13,11 +13,15 @@ Create a user using signup requests in http://tensorleap.local/api/v2/swagger
 ### On Ubuntu
 
 ```
-sudo apt-get update
+sudo apt update
+sudo apt upgrade
+
+# nvidia driver
+sudo apt install nvidia-driver-450
 
 # zsh
 sudo apt-get install -y zsh git vim
-ch -s $(which zsh) # restart after
+sudo chsh # change shell to /usr/bin/zsh and restart
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
