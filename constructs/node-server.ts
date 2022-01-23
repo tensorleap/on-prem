@@ -95,10 +95,6 @@ export class NodeServer extends Chart {
                     value: 'http://kibana.default:5601',
                   },
                   {
-                    name: 'DISABLE_INDEX_REPLICATION',
-                    value: 'true',
-                  },
-                  {
                     name: 'MONGO_URI',
                     value:
                       'mongodb://mongodb.default.svc/tensorleap?tls=false&ssl=false',
