@@ -12,7 +12,7 @@ Create a user using signup requests in http://tensorleap.local/api/v2/swagger
 
 ### On Ubuntu
 
-```
+```bash
 sudo apt update
 sudo apt upgrade
 
@@ -24,25 +24,27 @@ sudo apt-get install -y zsh git vim
 sudo chsh # change shell to /usr/bin/zsh and restart
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
-vim $HOME/.zshrc
-# plugins=(git microk8s zsh-syntax-highlighting)
-#
-# source <(kubectl completion zsh)
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-#
-# export EDITOR=vim
-# export KUBE_EDITOR=vim
-#
-# alias k=kubectl
-# alias kns=kubens
-# alias kctx=kubectl
-#
-# autoload -U compinit && compinit
-#
-# set_microk8s_config() {
-#   microk8s config > $HOME/.kube/config
-# }
+cat > $HOME/.zshrc << END
+plugins=(git microk8s zsh-syntax-highlighting zsh-autosuggestions)
+
+source <(kubectl completion zsh)
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export EDITOR=vim
+export KUBE_EDITOR=vim
+
+alias k=kubectl
+alias kns=kubens
+alias kctx=kubectx
+
+autoload -U compinit && compinit
+
+set_microk8s_config() {
+	microk8s config > $HOME/.kube/config
+}
+END
 
 # kubectx and kubens
 sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
@@ -66,7 +68,7 @@ sudo apt-get update
 sudo apt-get install -y kubectl
 
 # chromium
-sudo apt-get install chromium-browser
+sudo apt-get install -y chromium-browser
 
 # kapp
 wget -O- https://carvel.dev/install.sh > install.sh
@@ -77,9 +79,9 @@ rm install.sh
 sudo snap install microk8s --classic
 sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
-microk8s enable ingress dns storage rbac gpu
-microk8s enable host-access:ip=10.0.1.20
-# add a line `10.0.1.20<TAB>tensorleap.local` to `/etc/hosts`
+sudo microk8s enable ingress dns storage rbac gpu
+sudo microk8s enable host-access:ip=10.0.1.20
+echo '10.0.1.20 tensorleap.local' | sudo tee -a /etc/hosts
 
 # Installing tensorleap release
 wget https://github.com/tensorleap/on-prem/releases/download/$RELEASE_TAG/tensorleap.tar.gz
@@ -108,7 +110,11 @@ kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access
 
 ## Deploying to local cluster
 
-```
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami # Add the helm repo for RabbitMQ
+helm repo add elastic https://helm.elastic.co # Add the helm repo for Kibana
+helm repo add minio https://charts.min.io/ # Add the helm repo for MinIO
+
 npm run build
 kubectl --kubeconfig=<(microk8s config) apply -f ./dist
 ```
