@@ -12,6 +12,11 @@ Create a user using signup requests in http://tensorleap.local/api/v2/swagger
 
 ### On Ubuntu
 
+To log into ubuntu from MacOS:
+```bash
+multipass shell microk8s-vm
+```
+
 ```bash
 sudo apt update
 sudo apt upgrade
