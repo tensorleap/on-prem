@@ -355,10 +355,10 @@ data:
           restartPolicy: Never
           volumes:
             - name: engine-pvc
-              presistentVolumeClaim:
+              persistentVolumeClaim:
                 claimName: engine-pvc
             - name: local-user-data-pvc
-              presistentVolumeClaim:
+              persistentVolumeClaim:
                 claimName: local-user-data
 metadata:
   labels:
@@ -427,10 +427,10 @@ data:
           restartPolicy: Never
           volumes:
             - name: engine-pvc
-              presistentVolumeClaim:
+              persistentVolumeClaim:
                 claimName: engine-pvc
             - name: local-user-data-pvc
-              presistentVolumeClaim:
+              persistentVolumeClaim:
                 claimName: local-user-data
 metadata:
   labels:

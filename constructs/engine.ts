@@ -215,13 +215,13 @@ class EngineConfigMap {
             volumes: [
               {
                 name: 'engine-pvc',
-                presistentVolumeClaim: {
+                persistentVolumeClaim: {
                   claimName: props.pvcClaimName,
                 },
               },
               {
                 name: 'local-user-data-pvc',
-                presistentVolumeClaim: {
+                persistentVolumeClaim: {
                   claimName: props.localDataPvcClaimName,
                 },
               },
