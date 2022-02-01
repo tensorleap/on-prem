@@ -11,6 +11,9 @@ microk8s install
 microk8s status --wait-ready
 microk8s enable ingress dns storage rbac
 
+# Update /etc/hosts
+echo "$(multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first')\ttensorleap.local" | sudo tee -a /etc/hosts
+
 # Add microk8s context to your local KubeConfig file
 KUBECONFIG=<(microk8s config):$HOME/.kube/config kubectl config view --raw > kubeConfig && mv kubeConfig $HOME/.kube/config
 
@@ -35,6 +38,7 @@ kubectx -c # => should print microk8s
 kapp deploy -a on-prem -f ./tensorleap
 ```
 
+Tensorleap is served in http://tensorleap.local \
 Create a user using signup requests in http://tensorleap.local/api/v2/swagger
 
 ### On Ubuntu
@@ -103,7 +107,7 @@ sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
 microk8s enable ingress dns storage rbac gpu
 microk8s enable host-access:ip=10.0.1.20
-# add a line `10.0.1.20<TAB>tensorleap.local` to `/etc/hosts`
+echo "10.0.1.20\ttensorleap.local" | sudo tee -a /etc/hosts
 
 # Installing tensorleap release
 wget https://github.com/tensorleap/on-prem/releases/download/$RELEASE_TAG/tensorleap.tar.gz
@@ -129,9 +133,3 @@ kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access
   --docker-password="$(cat ./json-key-file.json)" \
   --docker-email=someone@tensorleap.ai
 ```
-
-## Connecting to the cluster
-
-1. Run `multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first'` to get the cluster ip.
-2. Edit `/etc/hosts` and add a line `<YOUR_CLUSTER_IP> tensorleap.local`
-3. Navigate to http://tensorleap.local/
