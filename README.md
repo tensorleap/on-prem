@@ -44,7 +44,7 @@ kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access
 rm ./json-key-file.json
 
 # deploy tensorleap to local cluster
-kapp deploy -a on-prem -f ./tensorleap
+kapp deploy -a on-prem -f ./dist
 ```
 
 Tensorleap is served in http://tensorleap.local \
