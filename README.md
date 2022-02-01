@@ -1,11 +1,38 @@
 # On Prem
 
-## Installing microk8s
+## Installing microk8s and tensorleap from the repo
 
-```
+### On Mac
+
+```bash
+# install microk8s
 brew install ubuntu/microk8s/microk8s
 microk8s install
+microk8s status --wait-ready
 microk8s enable ingress dns storage rbac
+
+# Add microk8s context to your local KubeConfig file
+KUBECONFIG=<(microk8s config):$HOME/.kube/config kubectl config view --raw > kubeConfig && mv kubeConfig $HOME/.kube/config
+
+# install kapp
+brew tap vmware-tanzu/carvel
+brew install kapp
+
+# install helm and add repositories
+brew install helm
+helm repo add elastic https://helm.elastic.co
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add minio https://charts.min.io/
+
+# Build manifests
+npm install
+npm run build
+
+## ========= MAKE SURE YOU'RE IN MICROK8S CONTEXT ===========
+kubectx -c # => should print microk8s
+
+# deploy tensorleap to local cluster
+kapp deploy -a on-prem -f ./tensorleap
 ```
 
 Create a user using signup requests in http://tensorleap.local/api/v2/swagger
@@ -105,27 +132,6 @@ kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access
   --docker-password="$(cat ./json-key-file.json)" \
   --docker-email=someone@tensorleap.ai
 ```
-
-## Deploying to local cluster
-
-```
-npm run build
-kubectl --kubeconfig=<(microk8s config) apply -f ./dist
-```
-
-or with `kapp`:
-
-```
-kapp --kubeconfig=<(microk8s config) deploy -a on-prem -f ./dist
-```
-
-You can also avoid writing `--kubeconfig=<(microk8s config)` by running:
-
-```
-KUBECONFIG=<(microk8s config):$HOME/.kube/config kubectl config view --raw > kubeConfig && mv kubeConfig $HOME/.kube/config
-```
-
-You should now have `microk8s` visible in `kctx`
 
 ## Connecting to the cluster
 
