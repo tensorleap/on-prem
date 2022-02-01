@@ -34,6 +34,15 @@ npm run build
 ## ========= MAKE SURE YOU'RE IN MICROK8S CONTEXT ===========
 kubectx -c # => should print microk8s
 
+# get ops service account secret and deploy it to microk8s cluster
+gsutil cp gs://tensorleap-infra-nonprod/ops/default.tfstate - | jq -r '.resources[] | select(.name == "ops_key" and .type == "github_actions_organization_secret") | .instances[].attributes.plaintext_value' > ./json-key-file.json
+kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access-token \
+  --docker-server=gcr.io \
+  --docker-username=_json_key \
+  --docker-password="$(cat ./json-key-file.json)" \
+  --docker-email=someone@tensorleap.ai
+rm ./json-key-file.json
+
 # deploy tensorleap to local cluster
 kapp deploy -a on-prem -f ./tensorleap
 ```
@@ -109,6 +118,13 @@ microk8s enable ingress dns storage rbac gpu
 microk8s enable host-access:ip=10.0.1.20
 echo "10.0.1.20\ttensorleap.local" | sudo tee -a /etc/hosts
 
+# Get a service account key file with read permissions to storage and add to cluster
+kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access-token \
+  --docker-server=gcr.io \
+  --docker-username=_json_key \
+  --docker-password="$(cat ./json-key-file.json)" \
+  --docker-email=someone@tensorleap.ai
+
 # Installing tensorleap release
 wget https://github.com/tensorleap/on-prem/releases/download/$RELEASE_TAG/tensorleap.tar.gz
 mkdir tensorleap
@@ -119,17 +135,3 @@ kapp deploy -a tl-blinkeye -f ./tensorleap
 ##### Troubleshooting
 
 1. The machine hostname must not include capital letters or numbers. if it does, change it in `/etc/hostname` and `/etc/hosts`
-
-#### Authenticating to gcr.io
-
-This example uses the ops account
-
-```bash
-gsutil cp gs://tensorleap-infra-nonprod/ops/default.tfstate - | jq -r '.resources[] | select(.name == "ops_key" and .type == "github_actions_organization_secret") | .instances[].attributes.plaintext_value' > ./json-key-file.json
-
-kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access-token \
-  --docker-server=gcr.io \
-  --docker-username=_json_key \
-  --docker-password="$(cat ./json-key-file.json)" \
-  --docker-email=someone@tensorleap.ai
-```
