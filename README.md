@@ -39,7 +39,7 @@ Create a user using signup requests in http://tensorleap.local/api/v2/swagger
 
 ### On Ubuntu
 
-```
+```bash
 sudo apt update
 sudo apt upgrade
 
@@ -92,9 +92,6 @@ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https:/
 sudo apt-get update
 sudo apt-get install -y kubectl
 
-# chromium
-sudo apt-get install chromium-browser
-
 # kapp
 wget -O- https://carvel.dev/install.sh > install.sh
 sudo bash install.sh
@@ -123,7 +120,7 @@ kapp deploy -a tl-blinkeye -f ./tensorleap
 
 This example uses the ops account
 
-```
+```bash
 gsutil cp gs://tensorleap-infra-nonprod/ops/default.tfstate - | jq -r '.resources[] | select(.name == "ops_key" and .type == "github_actions_organization_secret") | .instances[].attributes.plaintext_value' > ./json-key-file.json
 
 kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access-token \
