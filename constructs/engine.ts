@@ -178,7 +178,7 @@ class EngineConfigMap {
                   },
                   {
                     name: 'CONTENT_BASE_URL',
-                    value: 'http://tensorleap.local/session/',
+                    value: '/session/',
                   },
                   {
                     name: 'HMAC_ACCESS_KEY_ID',
