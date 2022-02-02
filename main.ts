@@ -15,7 +15,7 @@ new Kibana(app);
 const minio = new Minio(app);
 new RabbitMQ(app);
 new NodeServer(app, {
-  imageTag: 'master-657b8e03-stable',
+  imageTag: 'master-68003d02-stable',
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
