@@ -11,9 +11,6 @@ microk8s install
 microk8s status --wait-ready
 microk8s enable ingress dns storage rbac
 
-# Update /etc/hosts
-echo "$(multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first')\ttensorleap.local" | sudo tee -a /etc/hosts
-
 # Add microk8s context to your local KubeConfig file
 KUBECONFIG=<(microk8s config):$HOME/.kube/config kubectl config view --raw > kubeConfig && mv kubeConfig $HOME/.kube/config
 
@@ -29,7 +26,7 @@ helm repo add minio https://charts.min.io/
 
 # Build manifests
 npm install
-npm run build
+DISABLE_GPU=true npm run build
 
 ## ========= MAKE SURE YOU'RE IN MICROK8S CONTEXT ===========
 kubectx -c # => should print microk8s
@@ -47,8 +44,9 @@ rm ./json-key-file.json
 kapp deploy -a on-prem -f ./dist
 ```
 
-Tensorleap is served in http://tensorleap.local \
-Create a user using signup requests in http://tensorleap.local/api/v2/swagger
+You can get the machine path using `multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first'`
+Tensorleap is served in `http://MACHINE_IP` \
+Create a user using signup requests in `http://MACHINE_IP/api/v2/swagger`
 
 ### On Ubuntu
 
@@ -116,7 +114,6 @@ sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
 microk8s enable ingress dns storage rbac gpu
 microk8s enable host-access:ip=10.0.1.20
-echo "10.0.1.20\ttensorleap.local" | sudo tee -a /etc/hosts
 
 # Get a service account key file with read permissions to storage and add to cluster
 kubectl --kubeconfig=<(microk8s config) create secret docker-registry gcr-access-token \
@@ -130,6 +127,22 @@ wget https://github.com/tensorleap/on-prem/releases/download/$RELEASE_TAG/tensor
 mkdir tensorleap
 tar -xzvf tensorleap.tar.gz -C ./tensorleap/
 kapp deploy -a tl-blinkeye -f ./tensorleap
+```
+
+Tensorleap is served in `http://10.0.1.20` \
+Create a user using signup requests in `http://10.0.1.20/api/v2/swagger`
+
+### Setting local hostname
+
+Run this to make the app accessible from http://tensorleap.local (or replace with your choice of domain)
+
+```bash
+
+# on mac:
+echo "$(multipass list --format json | jq -r '.list[] | select(.name == "microk8s-vm") | .ipv4 | first')\ttensorleap.local" | sudo tee -a /etc/hosts
+
+# on ubuntu:
+echo "10.0.1.20\ttensorleap.local" | sudo tee -a /etc/hosts
 ```
 
 ##### Troubleshooting

@@ -8,66 +8,64 @@ import { Minio } from './constructs/minio';
 import { KappRules } from './constructs/kapp-rules';
 import { RabbitMQ } from './constructs/rabbitmq';
 
-test('Web UI', () => {
-  const app = Testing.app();
+chartTest('Web UI', (app) => {
   new WebUi(app, {
     imageTag: 'master-1234568-stable',
   });
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
 
-test('NodeServer', () => {
-  const app = Testing.app();
+chartTest('NodeServer', (app) => {
   new NodeServer(app, {
     imageTag: 'master-1234568-stable',
     minioAddress: 'dummy-minio',
   });
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
 
-test('Engine', () => {
-  const app = Testing.app();
-  new Engine(app, {
-    imageTag: 'master-1234568-stable',
-    minioAddress: 'dummy-minio',
+describe('Engine', () => {
+  chartTest('With GPU', (app) => {
+    new Engine(app, {
+      imageTag: 'master-1234568-stable',
+      minioAddress: 'dummy-minio',
+    });
   });
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
+
+  chartTest('Without GPU', (app) => {
+    new Engine(app, {
+      imageTag: 'master-1234568-stable',
+      minioAddress: 'dummy-minio',
+      noGpu: true,
+    });
+  });
 });
 
-test('Elasticsearch', () => {
-  const app = Testing.app();
+chartTest('Elasticsearch', (app) => {
   new Elasticsearch(app);
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
 
-test('Kibana', () => {
-  const app = Testing.app();
+chartTest('Kibana', (app) => {
   new Kibana(app);
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
 
-test('Minio', () => {
-  const app = Testing.app();
+chartTest('Minio', (app) => {
   new Minio(app);
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
 
-test('Kapp Rules', () => {
-  const app = Testing.app();
+chartTest('Kapp Rules', (app) => {
   new KappRules(app);
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
 
-test('RabbitMQ', () => {
-  const app = Testing.app();
+chartTest('RabbitMQ', (app) => {
   new RabbitMQ(app);
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
 });
+
+function chartTest(
+  testName: string,
+  fn: (app: ReturnType<typeof Testing['app']>) => void
+) {
+  test(testName, () => {
+    const app = Testing.app();
+    fn(app);
+    const results = app.synthYaml();
+    expect(results).toMatchSnapshot();
+  });
+}

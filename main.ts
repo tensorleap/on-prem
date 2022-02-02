@@ -8,6 +8,8 @@ import { Kibana } from './constructs/kibana';
 import { Minio } from './constructs/minio';
 import { RabbitMQ } from './constructs/rabbitmq';
 
+const noGpu = process.env.DISABLE_GPU == 'true';
+
 const app = new App();
 new KappRules(app);
 new Elasticsearch(app);
@@ -15,12 +17,13 @@ new Kibana(app);
 const minio = new Minio(app);
 new RabbitMQ(app);
 new NodeServer(app, {
-  imageTag: 'master-657b8e03-stable',
+  imageTag: 'master-68003d02-stable',
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
   imageTag: 'master-a3f85f18-stable',
   minioAddress: minio.minioAddress,
+  noGpu,
 });
 new WebUi(app, {
   imageTag: 'master-794917f5-stable',
