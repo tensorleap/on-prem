@@ -108,10 +108,6 @@ export class NodeServer extends Chart {
                     },
                   },
                   {
-                    name: 'HOST_NAME',
-                    value: 'tensorleap.local',
-                  },
-                  {
                     name: 'INSECURE_COOKIE',
                     value: 'true',
                   },
@@ -168,7 +164,7 @@ export class NodeServer extends Chart {
                   },
                   {
                     name: 'SIGNED_URL_HOST_REPLACEMENT',
-                    value: 'tensorleap.local',
+                    value: 'true',
                   },
                 ],
               },
