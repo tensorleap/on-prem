@@ -27,14 +27,27 @@ test('NodeServer', () => {
   expect(results).toMatchSnapshot();
 });
 
-test('Engine', () => {
-  const app = Testing.app();
-  new Engine(app, {
-    imageTag: 'master-1234568-stable',
-    minioAddress: 'dummy-minio',
+describe('Engine', () => {
+  test('With GPU', () => {
+    const app = Testing.app();
+    new Engine(app, {
+      imageTag: 'master-1234568-stable',
+      minioAddress: 'dummy-minio',
+    });
+    const results = app.synthYaml();
+    expect(results).toMatchSnapshot();
   });
-  const results = app.synthYaml();
-  expect(results).toMatchSnapshot();
+
+  test('Without GPU', () => {
+    const app = Testing.app();
+    new Engine(app, {
+      imageTag: 'master-1234568-stable',
+      minioAddress: 'dummy-minio',
+      noGpu: true,
+    });
+    const results = app.synthYaml();
+    expect(results).toMatchSnapshot();
+  });
 });
 
 test('Elasticsearch', () => {

@@ -26,7 +26,7 @@ helm repo add minio https://charts.min.io/
 
 # Build manifests
 npm install
-npm run build
+DISABLE_GPU=true npm run build
 
 ## ========= MAKE SURE YOU'RE IN MICROK8S CONTEXT ===========
 kubectx -c # => should print microk8s

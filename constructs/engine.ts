@@ -12,6 +12,7 @@ import * as yaml from 'js-yaml';
 export interface EngineProps {
   imageTag: string;
   minioAddress: string;
+  noGpu?: boolean;
 }
 
 const LOCAL_USER_DATA_STORAGE_SITE = Quantity.fromString('100Gi');
@@ -105,7 +106,7 @@ export class Engine extends Chart {
       serviceAccountName: serviceAccount.name,
       pvcClaimName: pvc.name,
       localDataPvcClaimName: localDataPvc.name,
-      gpu: true,
+      gpu: !props.noGpu,
     });
   }
 }
