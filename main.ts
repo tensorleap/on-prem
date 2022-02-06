@@ -17,15 +17,15 @@ new Kibana(app);
 const minio = new Minio(app);
 new RabbitMQ(app);
 new NodeServer(app, {
-  imageTag: 'master-68003d02-stable',
+  imageTag: 'master-36d20a5b-stable',
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
-  imageTag: 'master-a3f85f18-stable',
+  imageTag: 'master-19c3744e-stable',
   minioAddress: minio.minioAddress,
   noGpu,
 });
 new WebUi(app, {
-  imageTag: 'master-794917f5-stable',
+  imageTag: 'master-3051ab61-stable',
 });
 app.synth();
