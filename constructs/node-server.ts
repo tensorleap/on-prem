@@ -166,6 +166,10 @@ export class NodeServer extends Chart {
                     name: 'SIGNED_URL_HOST_REPLACEMENT',
                     value: 'true',
                   },
+                  {
+                    name: 'DISABLE_ENGINE_WARMUP',
+                    value: 'true',
+                  },
                 ],
               },
             ],
