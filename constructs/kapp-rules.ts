@@ -26,6 +26,22 @@ export class KappRules extends Chart {
             },
           ],
         },
+        {
+          paths: [
+            ['spec', 'claimRef', 'resourceVersion'],
+            ['spec', 'claimRef', 'uid'],
+          ],
+          type: 'copy',
+          sources: ['existing', 'new'],
+          resourceMatchers: [
+            {
+              apiVersionKindMatcher: {
+                apiVersion: 'v1',
+                kind: 'PersistentVolume',
+              },
+            },
+          ],
+        },
       ],
     });
   }

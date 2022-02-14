@@ -659,6 +659,21 @@ rebaseRules:
       - new
       - existing
     type: copy
+  - paths:
+      - - spec
+        - claimRef
+        - resourceVersion
+      - - spec
+        - claimRef
+        - uid
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: v1
+          kind: PersistentVolume
+    sources:
+      - existing
+      - new
+    type: copy
 "
 `;
 
