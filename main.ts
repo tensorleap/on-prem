@@ -26,6 +26,6 @@ new Engine(app, {
   noGpu,
 });
 new WebUi(app, {
-  imageTag: 'master-75a1aae6-stable',
+  imageTag: 'master-ca418af0-stable',
 });
 app.synth();
