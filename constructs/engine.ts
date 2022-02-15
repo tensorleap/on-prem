@@ -49,12 +49,15 @@ export class Engine extends Chart {
         name: 'local-user-data',
       },
       spec: {
+        persistentVolumeReclaimPolicy: 'Retain',
+        volumeMode: 'Filesystem',
         capacity: {
           storage: LOCAL_USER_DATA_STORAGE_SITE,
         },
         accessModes: ['ReadOnlyMany'],
         hostPath: {
           path: '/tensorleap-data/',
+          type: 'DirectoryOrCreate',
         },
         claimRef: {
           apiVersion: 'v1',

@@ -273,6 +273,9 @@ spec:
     namespace: default
   hostPath:
     path: /tensorleap-data/
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -472,6 +475,9 @@ spec:
     namespace: default
   hostPath:
     path: /tensorleap-data/
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -652,6 +658,21 @@ rebaseRules:
     sources:
       - new
       - existing
+    type: copy
+  - paths:
+      - - spec
+        - claimRef
+        - resourceVersion
+      - - spec
+        - claimRef
+        - uid
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: v1
+          kind: PersistentVolume
+    sources:
+      - existing
+      - new
     type: copy
 "
 `;
