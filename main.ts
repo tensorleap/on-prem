@@ -21,7 +21,7 @@ new NodeServer(app, {
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
-  imageTag: 'master-9108dbba-stable',
+  imageTag: 'remove-es-refresh-a88df799',
   minioAddress: minio.minioAddress,
   noGpu,
 });

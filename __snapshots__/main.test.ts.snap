@@ -129,7 +129,7 @@ spec:
             - name: network.host
               value: 0.0.0.0
             - name: ES_JAVA_OPTS
-              value: -Xmx128m -Xms128m -Dlog4j2.formatMsgNoLookups=true
+              value: -Dlog4j2.formatMsgNoLookups=true
             - name: node.data
               value: \\"true\\"
             - name: node.ingest
@@ -202,10 +202,10 @@ spec:
           resources:
             limits:
               cpu: 1000m
-              memory: 512M
+              memory: 2Gi
             requests:
-              cpu: 100m
-              memory: 512M
+              cpu: 1000m
+              memory: 2Gi
           securityContext:
             capabilities:
               drop:

@@ -55,17 +55,7 @@ curl 127.0.0.1:9200/_template/zero-replicas -s --fail -XPUT -H 'Content-Type: ap
           },
         },
         antiAffinity: 'soft',
-        esJavaOpts: '-Xmx128m -Xms128m -Dlog4j2.formatMsgNoLookups=true',
-        resources: {
-          requests: {
-            cpu: '100m',
-            memory: '512M',
-          },
-          limits: {
-            cpu: '1000m',
-            memory: '512M',
-          },
-        },
+        esJavaOpts: '-Dlog4j2.formatMsgNoLookups=true',
       },
       helmFlags: ['--version=7.6.1', '--skip-tests'],
     });
