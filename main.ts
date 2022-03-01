@@ -21,7 +21,7 @@ new NodeServer(app, {
   minioAddress: minio.minioAddress,
 });
 new Engine(app, {
-  imageTag: 'master-e8d0f270-stable',
+  imageTag: 'master-01dcc42c-stable',
   minioAddress: minio.minioAddress,
   noGpu,
 });
