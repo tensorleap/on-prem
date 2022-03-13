@@ -50,7 +50,7 @@ export class Minio extends Chart {
     new KubeIngress(this, 'ingress', {
       metadata: {
         annotations: {
-          'nginx.ingress.kubernetes.io/proxy-body-size': '100m',
+          'nginx.ingress.kubernetes.io/proxy-body-size': '900m',
           'kubernetes.io/ingress.class': 'public',
           'nginx.ingress.kubernetes.io/upstream-vhost': `${minio.releaseName}:9000`,
         },
