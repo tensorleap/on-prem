@@ -1251,7 +1251,7 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: public
-    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-body-size: 900m
     nginx.ingress.kubernetes.io/upstream-vhost: minio-c8cb4064:9000
   labels:
     app: minio
